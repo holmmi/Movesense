@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Movesense</string>
+    <!-- Start -->
+    <string name="start">Start</string>
+    <!-- History -->
+    <string name="history">History</string>
+    <!-- Settings -->
+    <string name="settings">Settings</string>
 </resources>
