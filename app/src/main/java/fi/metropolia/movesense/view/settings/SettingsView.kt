@@ -21,7 +21,7 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
             )
         },
         content = {
-            Text(NavigationRoutes.SETTINGS)
+            Text(Error)
         }
     )
 }
