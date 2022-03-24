@@ -2,10 +2,7 @@ package fi.metropolia.movesense.bluetooth
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
-import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanRecord
-import android.bluetooth.le.ScanResult
-import android.bluetooth.le.ScanSettings
+import android.bluetooth.le.*
 import android.content.Context
 import android.util.Log
 import android.util.SparseArray
@@ -24,14 +21,16 @@ class MovesenseScanner(context: Context, private val scannerCallback: MovesenseC
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
             result?.let {
-                val scanRecord: ScanRecord? = result.getScanRecord()
+                val scanRecord: ScanRecord? = result.scanRecord
+                Log.d("DBG", "${scanRecord}")
+
                 if (scanRecord != null) {
                     val manufacturerData: SparseArray<ByteArray> =
                         scanRecord.manufacturerSpecificData;
                     for (i in 0 until manufacturerData.size()) {
                         val manufacturerId = manufacturerData.keyAt(i)
                     }
-                    Log.d("Manu", "${result.device.name} device manufacturer $manufacturerData")
+                    Log.d("DBG", "${result.device.name} device manufacturer $manufacturerData")
                 }
 
                 if (leScanResults.all { result -> result.macAddress != it.device.address }) {
@@ -53,12 +52,12 @@ class MovesenseScanner(context: Context, private val scannerCallback: MovesenseC
             return false
         }
         leScanResults = mutableListOf()
-        /* val scanFilter = ScanFilter.Builder()
-             .setManufacturerData(MOVESENSE_MANUFACTURER_ID, byteArrayOf())
-             .build()*/
+        val scanFilter = ScanFilter.Builder()
+            .setManufacturerData(SUUNTO_MANUFACTURER_ID, byteArrayOf())
+            .build()
         val scanSettings = ScanSettings.Builder()
             .build()
-        leScanner.startScan(/* listOf(scanFilter),*/null, scanSettings, leScanCallback)
+        leScanner.startScan(listOf(scanFilter), scanSettings, leScanCallback)
         return true
     }
 
@@ -70,6 +69,6 @@ class MovesenseScanner(context: Context, private val scannerCallback: MovesenseC
         bluetoothAdapter != null && bluetoothAdapter.isEnabled
 
     companion object {
-      //  private const val MOVESENSE_MANUFACTURER_ID =
+        private const val SUUNTO_MANUFACTURER_ID = 0x009F
     }
 }
