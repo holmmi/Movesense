@@ -46,7 +46,8 @@ android {
 }
 
 dependencies {
-    implementation files('libs/mdslib-1.63.0(1)-release.aar')
+    // Local libraries
+    implementation fileTree(dir: 'libs', include: ['*.aar'])
     def nav_version = "2.4.1"
     implementation "androidx.navigation:navigation-compose:$nav_version"
 
