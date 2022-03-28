@@ -7,9 +7,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -23,6 +25,7 @@ import fi.metropolia.movesense.bluetooth.MovesenseDevice
 fun MovesenseSearcher(
     movesenseDevices: List<MovesenseDevice>?,
     onConnect: (Int) -> Unit,
+    isSearching: Boolean,
 ) {
     Column(
         modifier = Modifier
@@ -30,13 +33,44 @@ fun MovesenseSearcher(
             .padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = if (movesenseDevices.isNullOrEmpty()) {
-                stringResource(id = R.string.searching)
-            } else "",
-            style = MaterialTheme.typography.labelSmall,
-        )
-        /* if (movesenseDevices.isNullOrEmpty()) { TODO: show something } */
+        if (isSearching) {
+            Text(
+                text =
+                stringResource(id = R.string.searching),
+                style = MaterialTheme.typography.labelSmall,
+            )
+        }
+        if (movesenseDevices.isNullOrEmpty() && !isSearching) {
+            Card(
+                Modifier
+                    .fillMaxWidth()
+                    .height(125.dp)
+            ) {
+                Row {
+                    Text(
+                        text = stringResource(id = R.string.devices_not_found),
+                        modifier = Modifier
+                            .align(CenterVertically)
+                            .padding(8.dp)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .width(300.dp)
+                            .height(125.dp)
+                            .background(color = MaterialTheme.colorScheme.secondaryContainer),
+                    ) {
+                        Icon(
+                            Icons.Filled.ErrorOutline,
+                            null,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(48.dp),
+                        )
+                    }
+                }
+
+            }
+        }
         movesenseDevices?.let {
             Column(
                 Modifier
@@ -90,7 +124,9 @@ fun MovesenseSearcher(
                                 Icon(
                                     Icons.Filled.Bluetooth,
                                     null,
-                                    modifier = Modifier.align(Alignment.Center),
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .size(48.dp),
                                 )
                             }
                         }

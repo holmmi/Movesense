@@ -2,7 +2,6 @@ package fi.metropolia.movesense.view.start
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -10,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -26,7 +24,7 @@ import fi.metropolia.movesense.util.PermissionUtil
 fun StartView(navController: NavController, startViewModel: StartViewModel = viewModel()) {
     val movesenseDevices = startViewModel.movesenseDevices.observeAsState()
     var permissionsGiven by rememberSaveable { mutableStateOf(false) }
-    //val bluetoothEnabled by startViewModel.isBluetoothEnabled().asLiveData().observeAsState()
+    val isSearching = startViewModel.isSearching.collectAsState()
     val context = LocalContext.current
     val permissionsLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
@@ -41,10 +39,12 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
-            FloatingActionButton(
+            OutlinedButton(
                 onClick = {
                     startViewModel.startScan()
-                }) {
+                },
+                enabled = !isSearching.value
+            ) {
                 Text(
                     modifier = Modifier.padding(8.dp),
                     text = stringResource(id = R.string.scan)
@@ -56,6 +56,7 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
                 MovesenseSearcher(
                     movesenseDevices = movesenseDevices.value,
                     onConnect = { /*TODO*/ },
+                    isSearching = isSearching.value,
                 )
             }
         }
