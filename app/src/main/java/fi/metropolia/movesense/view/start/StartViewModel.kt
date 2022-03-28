@@ -5,7 +5,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.movesense.mds.MdsConnectionListener
+import com.movesense.mds.MdsException
 import fi.metropolia.movesense.bluetooth.MovesenseCallback
+import fi.metropolia.movesense.bluetooth.MovesenseConnector
 import fi.metropolia.movesense.bluetooth.MovesenseDevice
 import fi.metropolia.movesense.bluetooth.MovesenseScanner
 import kotlinx.coroutines.delay
@@ -46,6 +49,7 @@ class StartViewModel(application: Application) : AndroidViewModel(application) {
     fun stopScan() = movesenseScanner.stopScan()
 
     companion object {
-        private const val SCAN_TIMEOUT = 5000L
+        private const val SCAN_TIMEOUT = 10000L
     }
+
 }
