@@ -24,7 +24,7 @@ import fi.metropolia.movesense.util.PermissionUtil
 fun StartView(navController: NavController, startViewModel: StartViewModel = viewModel()) {
     val movesenseDevices = startViewModel.movesenseDevices.observeAsState()
     var permissionsGiven by rememberSaveable { mutableStateOf(false) }
-    val isSearching = startViewModel.isSearching.collectAsState()
+    val isSearching = startViewModel.isSearching.observeAsState()
     val context = LocalContext.current
     val permissionsLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
@@ -43,7 +43,7 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
                 onClick = {
                     startViewModel.startScan()
                 },
-                enabled = !isSearching.value
+                enabled = !isSearching.value!!
             ) {
                 Text(
                     modifier = Modifier.padding(8.dp),
@@ -56,7 +56,7 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
                 MovesenseSearcher(
                     movesenseDevices = movesenseDevices.value,
                     onConnect = { /*TODO*/ },
-                    isSearching = isSearching.value,
+                    isSearching = isSearching.value!!,
                 )
             }
         }
@@ -68,9 +68,5 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
                 context,
                 onCheckPermissions = { permissionsLauncher.launch(it) }
             )
-    }
-
-    LaunchedEffect(permissionsGiven) {
-        startViewModel.startScan()
     }
 }

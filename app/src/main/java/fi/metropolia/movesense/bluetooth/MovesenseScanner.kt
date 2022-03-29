@@ -1,11 +1,9 @@
 package fi.metropolia.movesense.bluetooth
 
-import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.*
 import android.content.Context
 
-@SuppressLint("MissingPermission")
 class MovesenseScanner(context: Context, private val scannerCallback: MovesenseCallback) {
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
