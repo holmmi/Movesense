@@ -11,8 +11,8 @@ import fi.metropolia.movesense.bluetooth.MovesenseCallback
 import fi.metropolia.movesense.bluetooth.MovesenseConnector
 import fi.metropolia.movesense.bluetooth.MovesenseDevice
 import fi.metropolia.movesense.bluetooth.MovesenseScanner
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class StartViewModel(application: Application) : AndroidViewModel(application) {
@@ -21,9 +21,9 @@ class StartViewModel(application: Application) : AndroidViewModel(application) {
     val movesenseDevices: LiveData<List<MovesenseDevice>?>
         get() = _movesenseDevices
 
-    private val _isSearching = MutableStateFlow(false)
-    val isSearching: StateFlow<Boolean>
-        get() = _isSearching.asStateFlow()
+    private val _isSearching = MutableLiveData(false)
+    val isSearching: LiveData<Boolean>
+        get() = _isSearching
 
     private val scannerCallback = object : MovesenseCallback {
         override fun onDeviceFound(movesenseDevices: List<MovesenseDevice>) {
@@ -35,14 +35,14 @@ class StartViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startScan() {
         _movesenseDevices.value = null
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             movesenseScanner.startScan()
             if (movesenseScanner.startScan()) {
-                _isSearching.emit(true)
+                _isSearching.postValue(true)
             }
             delay(SCAN_TIMEOUT)
             stopScan()
-            _isSearching.emit(false)
+            _isSearching.postValue(false)
         }
     }
 
