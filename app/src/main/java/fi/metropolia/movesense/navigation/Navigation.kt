@@ -7,10 +7,13 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import fi.metropolia.movesense.view.history.HistoryView
+import fi.metropolia.movesense.view.measure.MeasureView
 import fi.metropolia.movesense.view.settings.SettingsView
 import fi.metropolia.movesense.view.start.StartView
 
@@ -30,6 +33,12 @@ fun Navigation() {
                         route = NavigationRoutes.START
                     ) { StartView(navController) }
                     composable(
+                        route = NavigationRoutes.MEASURE,
+                        arguments = listOf(
+                            navArgument("deviceAddress") { type = NavType.StringType },
+                        )
+                    ) { MeasureView(navController, it.arguments?.getString("deviceAddress")) }
+                    composable(
                         route = NavigationRoutes.HISTORY
                     ) { HistoryView(navController) }
                     composable(
@@ -43,7 +52,8 @@ fun Navigation() {
 }
 
 object NavigationRoutes {
-    const val START = "home"
+    const val START = "start"
+    const val MEASURE = "measure/{deviceAddress}"
     const val HISTORY = "history"
     const val SETTINGS = "settings"
 }

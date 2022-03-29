@@ -17,6 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.component.MovesenseSearcher
+import fi.metropolia.movesense.navigation.NavigationRoutes
 import fi.metropolia.movesense.util.PermissionUtil
 
 @ExperimentalMaterial3Api
@@ -55,7 +56,14 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
             Column(modifier = Modifier.fillMaxSize()) {
                 MovesenseSearcher(
                     movesenseDevices = movesenseDevices.value,
-                    onConnect = { /*TODO*/ },
+                    onConnect = {
+                        navController.navigate(
+                            NavigationRoutes.MEASURE.replace(
+                                "{deviceAddress}",
+                                movesenseDevices.value?.get(it)!!.macAddress
+                            )
+                        )
+                    },
                     isSearching = isSearching.value!!,
                 )
             }
