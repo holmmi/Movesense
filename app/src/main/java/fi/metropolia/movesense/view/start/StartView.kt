@@ -1,5 +1,7 @@
 package fi.metropolia.movesense.view.start
 
+import android.net.Uri
+import android.os.Bundle
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
@@ -15,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.gson.Gson
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.component.MovesenseSearcher
 import fi.metropolia.movesense.navigation.NavigationRoutes
@@ -57,12 +60,16 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
                 MovesenseSearcher(
                     movesenseDevices = movesenseDevices.value,
                     onConnect = {
-                        navController.navigate(
-                            NavigationRoutes.MEASURE.replace(
-                                "{deviceAddress}",
-                                movesenseDevices.value?.get(it)!!.macAddress
+                        if (!movesenseDevices.value.isNullOrEmpty()) {
+                            val device = movesenseDevices.value!![it]
+                            val json = Uri.encode(Gson().toJson(device))
+                            navController.navigate(
+                                NavigationRoutes.MEASURE.replace(
+                                    "{device}",
+                                    json
+                                )
                             )
-                        )
+                        }
                     },
                     isSearching = isSearching.value!!,
                 )

@@ -10,10 +10,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.movesense.R
+import fi.metropolia.movesense.bluetooth.MovesenseDevice
 
 @ExperimentalMaterial3Api
 @Composable
-fun MeasureView(navController: NavController, deviceAddress: String?, measureViewModel: MeasureViewModel = viewModel()) {
+fun MeasureView(
+    navController: NavController,
+    device: MovesenseDevice?,
+    measureViewModel: MeasureViewModel = viewModel()
+) {
     Scaffold(
         topBar = {
             SmallTopAppBar(
@@ -27,9 +32,9 @@ fun MeasureView(navController: NavController, deviceAddress: String?, measureVie
         }
     )
 
-    if (deviceAddress != null) {
+    if (device != null) {
         LaunchedEffect(Unit) {
-            measureViewModel.connect(deviceAddress)
+            measureViewModel.connect(device.macAddress)
         }
     }
 
