@@ -57,7 +57,7 @@ fun Navigation() {
 
 object NavigationRoutes {
     const val START = "start"
-    const val MEASURE = "measure/{deviceAddress}"
+    const val MEASURE = "measure/{device}"
     const val HISTORY = "history"
     const val SETTINGS = "settings"
 }

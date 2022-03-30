@@ -3,17 +3,28 @@ package fi.metropolia.movesense.view.measure
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.google.gson.Gson
 import com.movesense.mds.MdsConnectionListener
 import com.movesense.mds.MdsException
+import com.movesense.mds.MdsNotificationListener
 import com.movesense.mds.MdsResponseListener
 import fi.metropolia.movesense.bluetooth.MovesenseConnector
-import fi.metropolia.movesense.bluetooth.MovesenseDevice
+import fi.metropolia.movesense.model.AccDataResponse
 
 
 class MeasureViewModel(application: Application) : AndroidViewModel(application) {
-    private val app = application
-    private val movesenseConnector = MovesenseConnector(app.applicationContext)
-    private lateinit var movesenseDevices: List<MovesenseDevice>
+    private val movesenseConnector = MovesenseConnector(application.applicationContext)
+
+    private val _accData = MutableLiveData<AccDataResponse>()
+    val accData: LiveData<AccDataResponse>
+        get() = _accData
+
+
+    init {
+        movesenseConnector.initMds()
+    }
 
     fun connect(address: String) =
         movesenseConnector.connect(address, object : MdsConnectionListener {
@@ -25,6 +36,7 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                 Log.d("btstatus", "device onConnectionComplete $macAddress $serial")
                 if (serial != null) {
                     getInfo(serial)
+                    subscribe(serial)
                 }
             }
 
@@ -37,26 +49,37 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
             }
         })
 
-    private fun getInfo(serial: String) {
+    private fun getInfo(serial: String) =
         movesenseConnector.getInfo(serial, object : MdsResponseListener {
             override fun onSuccess(s: String) {
                 Log.i(
-                    "BtStatus",
+                    "btstatus",
                     "Device $serial /info request succesful: $s"
                 )
-                // Display info in alert dialog
-                val builder = android.app.AlertDialog.Builder(app.applicationContext)
-                builder.setTitle("Device info:")
-                    .setMessage(s)
-                    .show()
             }
 
             override fun onError(e: MdsException) {
                 Log.e(
-                    "BtStatus",
+                    "btstatus",
                     "Device $serial /info returned error: $e"
                 )
             }
         })
-    }
+
+    private fun subscribe(serial: String) =
+        movesenseConnector.subscribe(serial, object : MdsNotificationListener {
+            override fun onNotification(data: String?) {
+                val accResponse: AccDataResponse =
+                    Gson().fromJson(data, AccDataResponse::class.java)
+                if (accResponse.body.array.isNotEmpty()) {
+                    _accData.postValue(accResponse)
+                }
+            }
+
+            override fun onError(p0: MdsException?) {
+                TODO("Not yet implemented")
+            }
+
+        })
+
 }

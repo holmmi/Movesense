@@ -71,7 +71,7 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
                             )
                         }
                     },
-                    isSearching = isSearching.value!!,
+                    isSearching = isSearching.value ?: false,
                 )
             }
         }

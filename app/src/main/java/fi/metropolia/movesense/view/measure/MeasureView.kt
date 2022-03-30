@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -19,6 +20,7 @@ fun MeasureView(
     device: MovesenseDevice?,
     measureViewModel: MeasureViewModel = viewModel()
 ) {
+    val accData = measureViewModel.accData.observeAsState()
     Scaffold(
         topBar = {
             SmallTopAppBar(
@@ -26,8 +28,9 @@ fun MeasureView(
             )
         },
         content = {
+            val array = accData.value?.body?.array?.get(0)
             Column(modifier = Modifier.fillMaxSize()) {
-
+                Text(text = "x: ${array?.x} y: ${array?.y} z: ${array?.z}")
             }
         }
     )
