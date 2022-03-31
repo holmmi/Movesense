@@ -2,11 +2,13 @@ package fi.metropolia.movesense.model
 
 import com.google.gson.annotations.SerializedName
 
-class AccDataResponse(@field:SerializedName("Body") val body: Body) {
+class DataResponse(@field:SerializedName("Body") val body: Body) {
     class Body(
-        @field:SerializedName("Timestamp") val timestamp: Long, @field:SerializedName(
-            "ArrayAcc"
-        ) val array: kotlin.Array<Array>, @field:SerializedName("Headers") val header: Headers
+        @field:SerializedName("Timestamp") val timestamp: Long,
+        @field:SerializedName("ArrayAcc") val arrayAcc: kotlin.Array<Array>,
+        @field:SerializedName("ArrayGyro") val arrayGyro: kotlin.Array<Array>,
+        @field:SerializedName("ArrayMagn") val arrayMagn: kotlin.Array<Array>,
+        @field:SerializedName("Headers") val header: Headers
     )
 
     class Array(

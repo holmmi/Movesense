@@ -11,16 +11,14 @@ import com.movesense.mds.MdsException
 import com.movesense.mds.MdsNotificationListener
 import com.movesense.mds.MdsResponseListener
 import fi.metropolia.movesense.bluetooth.MovesenseConnector
-import fi.metropolia.movesense.model.AccDataResponse
-
+import fi.metropolia.movesense.model.DataResponse
 
 class MeasureViewModel(application: Application) : AndroidViewModel(application) {
     private val movesenseConnector = MovesenseConnector(application.applicationContext)
 
-    private val _accData = MutableLiveData<AccDataResponse>()
-    val accData: LiveData<AccDataResponse>
+    private val _accData = MutableLiveData<DataResponse>()
+    val accData: LiveData<DataResponse>
         get() = _accData
-
 
     init {
         movesenseConnector.initMds()
@@ -61,7 +59,7 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
             override fun onError(e: MdsException) {
                 Log.e(
                     "btstatus",
-                    "Device $serial /info returned error: $e"
+                    "Device $serial /info returned error: ${e.localizedMessage}"
                 )
             }
         })
@@ -69,17 +67,21 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     private fun subscribe(serial: String) =
         movesenseConnector.subscribe(serial, object : MdsNotificationListener {
             override fun onNotification(data: String?) {
-                val accResponse: AccDataResponse =
-                    Gson().fromJson(data, AccDataResponse::class.java)
-                if (accResponse.body.array.isNotEmpty()) {
+                val accResponse: DataResponse =
+                    Gson().fromJson(data, DataResponse::class.java)
+                if (!accResponse.body.arrayAcc.isNullOrEmpty() &&
+                    !accResponse.body.arrayGyro.isNullOrEmpty() &&
+                    !accResponse.body.arrayMagn.isNullOrEmpty()
+                ) {
                     _accData.postValue(accResponse)
                 }
             }
 
-            override fun onError(p0: MdsException?) {
-                TODO("Not yet implemented")
+            override fun onError(e: MdsException?) {
+                Log.e(
+                    "btstatus",
+                    "MdsNotificationListener serial $serial error ${e!!.localizedMessage}"
+                )
             }
-
         })
-
 }

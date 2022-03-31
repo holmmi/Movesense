@@ -25,7 +25,7 @@ class MovesenseConnector(private val context: Context) {
     fun subscribe(serial: String, callback: MdsNotificationListener) {
         val sb = StringBuilder()
         val strContract: String =
-            sb.append("{\"Uri\": \"").append(serial).append(URI_MEAS_ACC_13).append("\"}")
+            sb.append("{\"Uri\": \"").append(serial).append(URI_MEAS_IMU_9).append("\"}")
                 .toString()
         if (mdsSubscription != null) {
             unsubscribe()
@@ -46,6 +46,6 @@ class MovesenseConnector(private val context: Context) {
 
     companion object {
         private val SCHEME_PREFIX = "suunto://";
-        private const val URI_MEAS_ACC_13 = "/Meas/Acc/13"
+        private const val URI_MEAS_IMU_9 = "/Meas/IMU9/13"
     }
 }

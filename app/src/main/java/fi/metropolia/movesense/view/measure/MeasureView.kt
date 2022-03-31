@@ -28,9 +28,9 @@ fun MeasureView(
             )
         },
         content = {
-            val array = accData.value?.body?.array?.get(0)
+            val accArray = accData.value?.body?.arrayAcc?.get(0)
             Column(modifier = Modifier.fillMaxSize()) {
-                Text(text = "x: ${array?.x} y: ${array?.y} z: ${array?.z}")
+                Text(text = "x: ${accArray?.x} y: ${accArray?.y} z: ${accArray?.z}")
             }
         }
     )
