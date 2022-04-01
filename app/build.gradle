@@ -1,7 +1,6 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'kotlin-parcelize'
 }
 
 android {
@@ -61,6 +60,9 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.9.0'
 
     implementation "com.polidea.rxandroidble2:rxandroidble:1.13.1"
+
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation 'androidx.core:core-ktx:1.7.0'

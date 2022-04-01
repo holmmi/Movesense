@@ -63,7 +63,7 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
                         if (!movesenseDevices.value.isNullOrEmpty()) {
                             navController.navigate(
                                 NavigationRoutes.MEASURE.replace(
-                                    "{device}",
+                                    "{address}",
                                     movesenseDevices.value!![it].macAddress
                                 )
                             )

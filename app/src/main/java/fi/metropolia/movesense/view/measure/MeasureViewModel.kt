@@ -20,6 +20,14 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     val dataResp: LiveData<DataResponse>
         get() = _dataResp
 
+    private val _isConnected = MutableLiveData(false)
+    val isConnected: LiveData<Boolean>
+        get() = _isConnected
+
+    private val _graphData = MutableLiveData<List<DataResponse.Body>?>(null)
+    val graphData: LiveData<List<DataResponse.Body>?>
+        get() = _graphData
+
     fun connect(address: String) =
         movesenseConnector.connect(address, object : MdsConnectionListener {
             override fun onConnect(p0: String?) {
@@ -31,6 +39,7 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                 if (serial != null) {
                     getInfo(serial)
                     subscribe(serial)
+                    _isConnected.postValue(true)
                 }
             }
 
@@ -40,8 +49,10 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
 
             override fun onDisconnect(p0: String?) {
                 Log.d("btstatus", "device onDisconnect $p0")
+                _isConnected.postValue(false)
             }
         })
+
 
     private fun getInfo(serial: String) =
         movesenseConnector.getInfo(serial, object : MdsResponseListener {
@@ -60,6 +71,7 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
             }
         })
 
+
     private fun subscribe(serial: String) =
         movesenseConnector.subscribe(serial, object : MdsNotificationListener {
             override fun onNotification(data: String?) {
@@ -69,6 +81,11 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                     !accResponse.body.arrayGyro.isNullOrEmpty() &&
                     !accResponse.body.arrayMagn.isNullOrEmpty()
                 ) {
+                    if (graphData.value != null) {
+                        _graphData.postValue(graphData.value?.plus(accResponse.body))
+                    } else {
+                        _graphData.postValue(listOf(accResponse.body))
+                    }
                     _dataResp.postValue(accResponse)
                 }
             }
@@ -80,4 +97,5 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                 )
             }
         })
+
 }
