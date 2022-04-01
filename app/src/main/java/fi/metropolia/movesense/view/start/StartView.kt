@@ -61,12 +61,10 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
                     movesenseDevices = movesenseDevices.value,
                     onConnect = {
                         if (!movesenseDevices.value.isNullOrEmpty()) {
-                            val device = movesenseDevices.value!![it]
-                            val json = Uri.encode(Gson().toJson(device))
                             navController.navigate(
                                 NavigationRoutes.MEASURE.replace(
                                     "{device}",
-                                    json
+                                    movesenseDevices.value!![it].macAddress
                                 )
                             )
                         }

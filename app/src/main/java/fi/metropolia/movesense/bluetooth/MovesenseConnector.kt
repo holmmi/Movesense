@@ -1,25 +1,28 @@
 package fi.metropolia.movesense.bluetooth
 
 import android.content.Context
+import android.util.Log
 import com.movesense.mds.*
 import com.movesense.mds.Mds.URI_EVENTLISTENER
+import java.lang.Exception
 
 //some code is from https://bitbucket.org/movesense/movesense-mobile-lib/src/master/android/samples/SensorSample/app/src/main/java/com/movesense/samples/sensorsample/MainActivity.java
 
-class MovesenseConnector(private val context: Context) {
-    private var mds: Mds? = null
+class MovesenseConnector(context: Context) {
+    private var mds: Mds = Mds.builder().build(context)
     private var mdsSubscription: MdsSubscription? = null
 
-    fun initMds() {
-        mds = Mds.builder().build(context)
+    fun connect(deviceAddress: String, callback: MdsConnectionListener) {
+        try {
+            mds.connect(deviceAddress, callback)
+        } catch (e: Exception) {
+            Log.e("btstatus", "connect exception ${e.localizedMessage}")
+        }
     }
-
-    fun connect(deviceAddress: String, callback: MdsConnectionListener) =
-        mds?.connect(deviceAddress, callback)
 
     fun getInfo(serial: String, callback: MdsResponseListener) {
         val uri = "$SCHEME_PREFIX$serial/Info"
-        mds?.get(uri, null, callback)
+        mds.get(uri, null, callback)
     }
 
     fun subscribe(serial: String, callback: MdsNotificationListener) {
@@ -31,7 +34,7 @@ class MovesenseConnector(private val context: Context) {
             unsubscribe()
         }
 
-        mdsSubscription = mds?.subscribe(
+        mdsSubscription = mds.subscribe(
             URI_EVENTLISTENER,
             strContract, callback
         )
@@ -45,7 +48,7 @@ class MovesenseConnector(private val context: Context) {
     }
 
     companion object {
-        private val SCHEME_PREFIX = "suunto://";
+        private const val SCHEME_PREFIX = "suunto://";
         private const val URI_MEAS_IMU_9 = "/Meas/IMU9/13"
     }
 }

@@ -16,13 +16,9 @@ import fi.metropolia.movesense.model.DataResponse
 class MeasureViewModel(application: Application) : AndroidViewModel(application) {
     private val movesenseConnector = MovesenseConnector(application.applicationContext)
 
-    private val _accData = MutableLiveData<DataResponse>()
-    val accData: LiveData<DataResponse>
-        get() = _accData
-
-    init {
-        movesenseConnector.initMds()
-    }
+    private val _dataResp = MutableLiveData<DataResponse>()
+    val dataResp: LiveData<DataResponse>
+        get() = _dataResp
 
     fun connect(address: String) =
         movesenseConnector.connect(address, object : MdsConnectionListener {
@@ -73,7 +69,7 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                     !accResponse.body.arrayGyro.isNullOrEmpty() &&
                     !accResponse.body.arrayMagn.isNullOrEmpty()
                 ) {
-                    _accData.postValue(accResponse)
+                    _dataResp.postValue(accResponse)
                 }
             }
 
