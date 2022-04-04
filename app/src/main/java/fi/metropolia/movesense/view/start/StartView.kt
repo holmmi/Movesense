@@ -57,14 +57,16 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
                 MovesenseSearcher(
                     movesenseDevices = movesenseDevices.value,
                     onConnect = {
-                        navController.navigate(
-                            NavigationRoutes.MEASURE.replace(
-                                "{deviceAddress}",
-                                movesenseDevices.value?.get(it)!!.macAddress
+                        if (!movesenseDevices.value.isNullOrEmpty()) {
+                            navController.navigate(
+                                NavigationRoutes.MEASURE.replace(
+                                    "{address}",
+                                    movesenseDevices.value!![it].macAddress
+                                )
                             )
-                        )
+                        }
                     },
-                    isSearching = isSearching.value!!,
+                    isSearching = isSearching.value ?: false,
                 )
             }
         }

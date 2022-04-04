@@ -35,9 +35,11 @@ fun Navigation() {
                     composable(
                         route = NavigationRoutes.MEASURE,
                         arguments = listOf(
-                            navArgument("deviceAddress") { type = NavType.StringType },
+                            navArgument("address") { type = NavType.StringType },
                         )
-                    ) { MeasureView(navController, it.arguments?.getString("deviceAddress")) }
+                    ) {
+                        MeasureView(navController, it.arguments?.getString("address"))
+                    }
                     composable(
                         route = NavigationRoutes.HISTORY
                     ) { HistoryView(navController) }
@@ -53,7 +55,7 @@ fun Navigation() {
 
 object NavigationRoutes {
     const val START = "start"
-    const val MEASURE = "measure/{deviceAddress}"
+    const val MEASURE = "start/measure/{address}"
     const val HISTORY = "history"
     const val SETTINGS = "settings"
 }
