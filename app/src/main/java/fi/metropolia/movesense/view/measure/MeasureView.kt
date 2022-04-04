@@ -24,7 +24,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import fi.metropolia.movesense.R
-import fi.metropolia.movesense.model.DataResponse
+import fi.metropolia.movesense.model.MovesenseDataResponse
 
 @ExperimentalMaterial3Api
 @Composable
@@ -69,11 +69,10 @@ fun MeasureView(
     }
 }
 
-fun getValue(graphData: List<DataResponse.Body>) = graphData.map { it.arrayAcc[0] }
-
+fun getValue(graphData: List<MovesenseDataResponse.Body>) = graphData.map { it.arrayAcc[0] }
 
 @Composable
-fun ShowGraph(graphData: List<DataResponse.Array>) {
+fun ShowGraph(graphData: List<MovesenseDataResponse.Array>) {
     Log.d("graph", graphData.toString())
     val entriesX = mutableListOf<Entry>()
     val entriesY = mutableListOf<Entry>()
