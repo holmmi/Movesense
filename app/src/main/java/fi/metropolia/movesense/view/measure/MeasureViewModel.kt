@@ -11,31 +11,31 @@ import com.movesense.mds.MdsException
 import com.movesense.mds.MdsNotificationListener
 import com.movesense.mds.MdsResponseListener
 import fi.metropolia.movesense.bluetooth.MovesenseConnector
-import fi.metropolia.movesense.model.DataResponse
+import fi.metropolia.movesense.model.MovesenseDataResponse
 
 class MeasureViewModel(application: Application) : AndroidViewModel(application) {
     private val movesenseConnector = MovesenseConnector(application.applicationContext)
 
-    private val _dataResp = MutableLiveData<DataResponse>()
-    val dataResp: LiveData<DataResponse>
+    private val _dataResp = MutableLiveData<MovesenseDataResponse>()
+    val dataResp: LiveData<MovesenseDataResponse>
         get() = _dataResp
 
     private val _isConnected = MutableLiveData(false)
     val isConnected: LiveData<Boolean>
         get() = _isConnected
 
-    private val _graphData = MutableLiveData<List<DataResponse.Body>?>(null)
-    val graphData: LiveData<List<DataResponse.Body>?>
+    private val _graphData = MutableLiveData<List<MovesenseDataResponse.Body>?>(null)
+    val graphData: LiveData<List<MovesenseDataResponse.Body>?>
         get() = _graphData
 
     fun connect(address: String) =
         movesenseConnector.connect(address, object : MdsConnectionListener {
             override fun onConnect(p0: String?) {
-                Log.d("btstatus", "device onConnect $p0")
+                Log.d(TAG, "device onConnect $p0")
             }
 
             override fun onConnectionComplete(macAddress: String?, serial: String?) {
-                Log.d("btstatus", "device onConnectionComplete $macAddress $serial")
+                Log.d(TAG, "device onConnectionComplete $macAddress $serial")
                 if (serial != null) {
                     getInfo(serial)
                     subscribe(serial)
@@ -44,39 +44,38 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
             }
 
             override fun onError(p0: MdsException?) {
-                Log.d("btstatus", "device onError $p0")
+                Log.d(TAG, "device onError $p0")
             }
 
             override fun onDisconnect(p0: String?) {
+                Log.d(TAG, "device onDisconnect $p0")
                 Log.d("btstatus", "device onDisconnect $p0")
                 _isConnected.postValue(false)
             }
         })
 
-
     private fun getInfo(serial: String) =
         movesenseConnector.getInfo(serial, object : MdsResponseListener {
             override fun onSuccess(s: String) {
                 Log.i(
-                    "btstatus",
+                    TAG,
                     "Device $serial /info request succesful: $s"
                 )
             }
 
             override fun onError(e: MdsException) {
                 Log.e(
-                    "btstatus",
+                    TAG,
                     "Device $serial /info returned error: ${e.localizedMessage}"
                 )
             }
         })
 
-
     private fun subscribe(serial: String) =
         movesenseConnector.subscribe(serial, object : MdsNotificationListener {
             override fun onNotification(data: String?) {
-                val accResponse: DataResponse =
-                    Gson().fromJson(data, DataResponse::class.java)
+                val accResponse: MovesenseDataResponse =
+                    Gson().fromJson(data, MovesenseDataResponse::class.java)
                 if (!accResponse.body.arrayAcc.isNullOrEmpty() &&
                     !accResponse.body.arrayGyro.isNullOrEmpty() &&
                     !accResponse.body.arrayMagn.isNullOrEmpty()
@@ -92,10 +91,13 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
 
             override fun onError(e: MdsException?) {
                 Log.e(
-                    "btstatus",
+                    TAG,
                     "MdsNotificationListener serial $serial error ${e!!.localizedMessage}"
                 )
             }
         })
 
+    companion object {
+        private val TAG = MeasureViewModel::class.simpleName
+    }
 }

@@ -2,7 +2,7 @@ package fi.metropolia.movesense.model
 
 import com.google.gson.annotations.SerializedName
 
-class DataResponse(@field:SerializedName("Body") val body: Body) {
+class MovesenseDataResponse(@field:SerializedName("Body") val body: Body) {
     class Body(
         @field:SerializedName("Timestamp") val timestamp: Long,
         @field:SerializedName("ArrayAcc") val arrayAcc: kotlin.Array<Array>,
