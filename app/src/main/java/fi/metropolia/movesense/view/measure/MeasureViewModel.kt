@@ -11,23 +11,23 @@ import com.movesense.mds.MdsException
 import com.movesense.mds.MdsNotificationListener
 import com.movesense.mds.MdsResponseListener
 import fi.metropolia.movesense.bluetooth.MovesenseConnector
-import fi.metropolia.movesense.model.DataResponse
+import fi.metropolia.movesense.model.MovesenseDataResponse
 
 class MeasureViewModel(application: Application) : AndroidViewModel(application) {
     private val movesenseConnector = MovesenseConnector(application.applicationContext)
 
-    private val _dataResp = MutableLiveData<DataResponse>()
-    val dataResp: LiveData<DataResponse>
+    private val _dataResp = MutableLiveData<MovesenseDataResponse>()
+    val dataResp: LiveData<MovesenseDataResponse>
         get() = _dataResp
 
     fun connect(address: String) =
         movesenseConnector.connect(address, object : MdsConnectionListener {
             override fun onConnect(p0: String?) {
-                Log.d("btstatus", "device onConnect $p0")
+                Log.d(TAG, "device onConnect $p0")
             }
 
             override fun onConnectionComplete(macAddress: String?, serial: String?) {
-                Log.d("btstatus", "device onConnectionComplete $macAddress $serial")
+                Log.d(TAG, "device onConnectionComplete $macAddress $serial")
                 if (serial != null) {
                     getInfo(serial)
                     subscribe(serial)
@@ -35,11 +35,11 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
             }
 
             override fun onError(p0: MdsException?) {
-                Log.d("btstatus", "device onError $p0")
+                Log.d(TAG, "device onError $p0")
             }
 
             override fun onDisconnect(p0: String?) {
-                Log.d("btstatus", "device onDisconnect $p0")
+                Log.d(TAG, "device onDisconnect $p0")
             }
         })
 
@@ -47,14 +47,14 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
         movesenseConnector.getInfo(serial, object : MdsResponseListener {
             override fun onSuccess(s: String) {
                 Log.i(
-                    "btstatus",
+                    TAG,
                     "Device $serial /info request succesful: $s"
                 )
             }
 
             override fun onError(e: MdsException) {
                 Log.e(
-                    "btstatus",
+                    TAG,
                     "Device $serial /info returned error: ${e.localizedMessage}"
                 )
             }
@@ -63,8 +63,8 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     private fun subscribe(serial: String) =
         movesenseConnector.subscribe(serial, object : MdsNotificationListener {
             override fun onNotification(data: String?) {
-                val accResponse: DataResponse =
-                    Gson().fromJson(data, DataResponse::class.java)
+                val accResponse: MovesenseDataResponse =
+                    Gson().fromJson(data, MovesenseDataResponse::class.java)
                 if (!accResponse.body.arrayAcc.isNullOrEmpty() &&
                     !accResponse.body.arrayGyro.isNullOrEmpty() &&
                     !accResponse.body.arrayMagn.isNullOrEmpty()
@@ -75,9 +75,13 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
 
             override fun onError(e: MdsException?) {
                 Log.e(
-                    "btstatus",
+                    TAG,
                     "MdsNotificationListener serial $serial error ${e!!.localizedMessage}"
                 )
             }
         })
+
+    companion object {
+        private val TAG = MeasureViewModel::class.simpleName
+    }
 }

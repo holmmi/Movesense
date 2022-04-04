@@ -9,14 +9,14 @@ import java.lang.Exception
 //some code is from https://bitbucket.org/movesense/movesense-mobile-lib/src/master/android/samples/SensorSample/app/src/main/java/com/movesense/samples/sensorsample/MainActivity.java
 
 class MovesenseConnector(context: Context) {
-    private var mds: Mds = Mds.builder().build(context)
+    private val mds: Mds = Mds.builder().build(context)
     private var mdsSubscription: MdsSubscription? = null
 
     fun connect(deviceAddress: String, callback: MdsConnectionListener) {
         try {
             mds.connect(deviceAddress, callback)
         } catch (e: Exception) {
-            Log.e("btstatus", "connect exception ${e.localizedMessage}")
+            Log.e(TAG, "connect exception ${e.localizedMessage}")
         }
     }
 
@@ -27,9 +27,11 @@ class MovesenseConnector(context: Context) {
 
     fun subscribe(serial: String, callback: MdsNotificationListener) {
         val sb = StringBuilder()
-        val strContract: String =
-            sb.append("{\"Uri\": \"").append(serial).append(URI_MEAS_IMU_9).append("\"}")
-                .toString()
+        val strContract: String = sb
+            .append("{\"Uri\": \"")
+            .append(serial).append(URI_MEAS_IMU_9)
+            .append("\"}")
+            .toString()
         if (mdsSubscription != null) {
             unsubscribe()
         }
@@ -50,5 +52,6 @@ class MovesenseConnector(context: Context) {
     companion object {
         private const val SCHEME_PREFIX = "suunto://";
         private const val URI_MEAS_IMU_9 = "/Meas/IMU9/13"
+        private val TAG = MovesenseConnector::class.simpleName
     }
 }
