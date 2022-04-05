@@ -12,6 +12,9 @@
     <string name="connect_to_movesense">Connect to a movesense device</string>
     <!-- Measure -->
     <string name="measure">Measure</string>
+    <string name="acc">Acceleration</string>
+    <string name="magn">Magnetic field</string>
+    <string name="gyro">Gyro</string>
     <!-- History -->
     <string name="history">History</string>
     <!-- Settings -->

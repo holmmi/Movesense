@@ -3,6 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/magnet_icon.xml" value="0.1" />
         <entry key="app/src/main/res/layout/graph.xml" value="0.29791666666666666" />
         <entry key="app/src/main/res/xml/chartview.xml" value="0.29791666666666666" />
       </map>
