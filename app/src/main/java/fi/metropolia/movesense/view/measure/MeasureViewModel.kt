@@ -12,6 +12,7 @@ import com.movesense.mds.MdsNotificationListener
 import com.movesense.mds.MdsResponseListener
 import fi.metropolia.movesense.bluetooth.MovesenseConnector
 import fi.metropolia.movesense.model.MovesenseDataResponse
+import fi.metropolia.movesense.types.MeasureType
 
 class MeasureViewModel(application: Application) : AndroidViewModel(application) {
     private val movesenseConnector = MovesenseConnector(application.applicationContext)
@@ -24,9 +25,18 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     val isConnected: LiveData<Boolean>
         get() = _isConnected
 
-    private val _graphData = MutableLiveData<List<MovesenseDataResponse.Body>?>(null)
-    val graphData: LiveData<List<MovesenseDataResponse.Body>?>
+    private val _graphData = MutableLiveData<List<MovesenseDataResponse.Array?>>(null)
+    val graphData: LiveData<List<MovesenseDataResponse.Array?>>
         get() = _graphData
+
+    //averages of 10 measurements
+    private val _dataAvg = MutableLiveData<MovesenseDataResponse.Array?>(null)
+    val dataAvg: LiveData<MovesenseDataResponse.Array?>
+        get() = _dataAvg
+
+    private val _measureType = MutableLiveData(MeasureType.Acceleration)
+    val measureType: LiveData<MeasureType>
+        get() = _measureType
 
     fun connect(address: String) =
         movesenseConnector.connect(address, object : MdsConnectionListener {
@@ -54,6 +64,11 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
             }
         })
 
+    fun changeMeasureType(measureType: MeasureType) {
+        //_graphData.postValue(listOf(null))
+       _measureType.postValue(measureType)
+    }
+
     private fun getInfo(serial: String) =
         movesenseConnector.getInfo(serial, object : MdsResponseListener {
             override fun onSuccess(s: String) {
@@ -74,18 +89,39 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     private fun subscribe(serial: String) =
         movesenseConnector.subscribe(serial, object : MdsNotificationListener {
             override fun onNotification(data: String?) {
-                val accResponse: MovesenseDataResponse =
+                val dataResponse: MovesenseDataResponse =
                     Gson().fromJson(data, MovesenseDataResponse::class.java)
-                if (!accResponse.body.arrayAcc.isNullOrEmpty() &&
-                    !accResponse.body.arrayGyro.isNullOrEmpty() &&
-                    !accResponse.body.arrayMagn.isNullOrEmpty()
+                if (!dataResponse.body.arrayAcc.isNullOrEmpty() &&
+                    !dataResponse.body.arrayGyro.isNullOrEmpty() &&
+                    !dataResponse.body.arrayMagn.isNullOrEmpty()
                 ) {
-                    if (graphData.value != null) {
-                        _graphData.postValue(graphData.value?.plus(accResponse.body))
-                    } else {
-                        _graphData.postValue(listOf(accResponse.body))
+                    val selectedData = when (measureType.value) {
+                        MeasureType.Acceleration -> {
+                            dataResponse.body.arrayAcc
+                        }
+
+                        MeasureType.Gyro -> {
+                            dataResponse.body.arrayGyro
+                        }
+
+                        MeasureType.Magnetic -> {
+                            dataResponse.body.arrayGyro
+                        }
+
+                        null -> {
+                            dataResp.value?.body?.arrayAcc
+                        }
                     }
-                    _dataResp.postValue(accResponse)
+                    Log.d(TAG, "selecteddata ${selectedData?.get(0)?.x}")
+                    Log.d(TAG, "graphData ${graphData.value?.get(0)}")
+
+                    if (graphData.value != null) {
+                        _graphData.postValue(graphData.value?.plus(selectedData?.get(0)))
+                    } else {
+                        _graphData.postValue(listOf(selectedData?.get(0)))
+                    }
+                    calculateAverage(selectedData)
+                    _dataResp.postValue(dataResponse)
                 }
             }
 
@@ -96,6 +132,22 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                 )
             }
         })
+
+    private var index: Int = 0
+
+    private fun calculateAverage(selectedData: Array<MovesenseDataResponse.Array>?) {
+        index++
+
+        if (index > 9) {
+            val xAvg = selectedData?.map { it.x }?.toTypedArray()?.average()
+            val yAvg = selectedData?.map { it.y }?.toTypedArray()?.average()
+            val zAvg = selectedData?.map { it.z }?.toTypedArray()?.average()
+            if (xAvg != null && yAvg != null && zAvg != null) {
+                _dataAvg.postValue(MovesenseDataResponse.Array(xAvg, yAvg, zAvg))
+            }
+            index = 0
+        }
+    }
 
     companion object {
         private val TAG = MeasureViewModel::class.simpleName

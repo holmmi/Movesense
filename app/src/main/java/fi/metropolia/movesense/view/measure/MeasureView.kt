@@ -43,10 +43,10 @@ fun MeasureView(
     address: String?,
     measureViewModel: MeasureViewModel = viewModel()
 ) {
-    val dataResp = measureViewModel.dataResp.observeAsState()
     val graphData = measureViewModel.graphData.observeAsState()
-    var selectedData by rememberSaveable { mutableStateOf<List<MovesenseDataResponse.Array>>(listOf()) }
-    var measureType by rememberSaveable { mutableStateOf(MeasureType.Acceleration) }
+    val selectedData = measureViewModel.dataAvg.observeAsState()
+    var measureType = measureViewModel.measureType.observeAsState()
+
     Scaffold(
         topBar = {
             SmallTopAppBar(
@@ -59,16 +59,13 @@ fun MeasureView(
             )
         },
         content = {
-            val accArray = dataResp.value?.body?.arrayAcc?.get(0)
-            val gyroArray = dataResp.value?.body?.arrayGyro?.get(0)
-            val magnArray = dataResp.value?.body?.arrayGyro?.get(0)
 
             val selectedBtnColor = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.surface
             )
 
-            selectedData = when (measureType) {
+            /*selectedData = when (measureType) {
                 MeasureType.Acceleration -> {
                     graphData.value?.map { it.arrayAcc[0] } ?: listOf()
                 }
@@ -80,8 +77,8 @@ fun MeasureView(
                 MeasureType.Magnetic -> {
                     graphData.value?.map { it.arrayMagn[0] } ?: listOf()
                 }
-            }
-            if (selectedData.isNotEmpty() && measureViewModel.isConnected.value == true) {
+            }*/
+            if (selectedData.value != null && graphData.value != null && measureViewModel.isConnected.value == true) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Row(
                         modifier = Modifier
@@ -94,15 +91,15 @@ fun MeasureView(
                                 .padding(8.dp)
                                 .height(40.dp)
                                 .weight(3F),
-                            onClick = { measureType = MeasureType.Acceleration },
+                            onClick = { measureViewModel.changeMeasureType(MeasureType.Acceleration) },
                             colors =
-                            if (measureType == MeasureType.Acceleration) {
+                            if (measureType.value == MeasureType.Acceleration) {
                                 selectedBtnColor
                             } else {
                                 ButtonDefaults.outlinedButtonColors()
                             }
                         ) {
-                            if (measureType == MeasureType.Acceleration) {
+                            if (measureType.value == MeasureType.Acceleration) {
                                 Icon(
                                     modifier = Modifier.padding(end = 8.dp),
                                     imageVector = Icons.Default.Check,
@@ -116,15 +113,15 @@ fun MeasureView(
                                 .padding(8.dp)
                                 .height(40.dp)
                                 .weight(2F),
-                            onClick = { measureType = MeasureType.Gyro },
+                            onClick = { measureViewModel.changeMeasureType(MeasureType.Gyro) },
                             colors =
-                            if (measureType == MeasureType.Gyro) {
+                            if (measureType.value == MeasureType.Gyro) {
                                 selectedBtnColor
                             } else {
                                 ButtonDefaults.outlinedButtonColors()
                             }
                         ) {
-                            if (measureType == MeasureType.Gyro) {
+                            if (measureType.value == MeasureType.Gyro) {
                                 Icon(
                                     modifier = Modifier.padding(end = 8.dp),
                                     imageVector = Icons.Default.Check,
@@ -145,15 +142,15 @@ fun MeasureView(
                             modifier = Modifier
                                 .padding(8.dp)
                                 .height(40.dp),
-                            onClick = { measureType = MeasureType.Magnetic },
+                            onClick = { measureViewModel.changeMeasureType(MeasureType.Magnetic) },
                             colors =
-                            if (measureType == MeasureType.Magnetic) {
+                            if (measureType.value == MeasureType.Magnetic) {
                                 selectedBtnColor
                             } else {
                                 ButtonDefaults.outlinedButtonColors()
                             }
                         ) {
-                            if (measureType == MeasureType.Magnetic) {
+                            if (measureType.value == MeasureType.Magnetic) {
                                 Icon(
                                     modifier = Modifier.padding(end = 8.dp),
                                     imageVector = Icons.Default.Check,
@@ -168,7 +165,7 @@ fun MeasureView(
                             .fillMaxWidth()
                             .weight(13F)
                     ) {
-                        MovesenseGraph(selectedData)
+                        MovesenseGraph(graphData.value!!)
                     }
                     Card(
                         modifier = Modifier
@@ -187,24 +184,27 @@ fun MeasureView(
                                     modifier = Modifier
                                         .align(Alignment.Center)
                                         .size(48.dp),
-                                    imageVector = when (measureType) {
+                                    imageVector = when (measureType.value) {
                                         MeasureType.Acceleration -> Icons.Outlined.DirectionsRun
                                         MeasureType.Gyro -> Icons.Outlined.FlipCameraAndroid
                                         MeasureType.Magnetic -> Icons.Outlined.Directions
+                                        else -> {
+                                            Icons.Outlined.ErrorOutline
+                                        }
                                     }, contentDescription = null
                                 )
                             }
                             Text(
-                                text = measureType.name, modifier = Modifier
+                                text = measureType.value!!.name, modifier = Modifier
                                     .padding(8.dp)
                                     .align(
                                         Alignment.CenterVertically
                                     )
                             )
                             Column(modifier = Modifier.padding(8.dp)) {
-                                Text("x: ${selectedData.last().x.round(6)}")
-                                Text("y: ${selectedData.last().y.round(6)}")
-                                Text("z: ${selectedData.last().z.round(6)}")
+                                Text("x: ${selectedData.value!!.x.round(3)}")
+                                Text("y: ${selectedData.value!!.y.round(3)}")
+                                Text("z: ${selectedData.value!!.z.round(3)}")
                             }
                         }
                     }
