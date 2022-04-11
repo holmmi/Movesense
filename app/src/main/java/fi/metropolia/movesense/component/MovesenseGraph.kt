@@ -1,13 +1,11 @@
 package fi.metropolia.movesense.component
 
-import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
@@ -15,7 +13,6 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.utils.ColorTemplate
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.model.MovesenseDataResponse
 
@@ -24,63 +21,43 @@ fun MovesenseGraph(graphData: List<MovesenseDataResponse.Array?>) {
     val entriesX = mutableListOf<Entry>()
     val entriesY = mutableListOf<Entry>()
     val entriesZ = mutableListOf<Entry>()
-    lateinit var chart: LineChart
 
-    val xSet: LineDataSet = LineDataSet(entriesX, "x")
-    val ySet: LineDataSet = LineDataSet(entriesY, "y")
-    val zSet: LineDataSet = LineDataSet(entriesZ, "z")
+    graphData.forEachIndexed { index, value ->
+        if (value != null) {
+            entriesX.add(Entry(index.toFloat(), value.x.toFloat()))
+            entriesY.add(Entry(index.toFloat(), value.y.toFloat()))
+            entriesZ.add(Entry(index.toFloat(), value.z.toFloat()))
+        }
+    }
 
     fun setData(): LineData {
-        graphData.forEachIndexed { index, value ->
-            if (value != null) {
-                entriesX.add(Entry(index.toFloat(), value.x.toFloat()))
-                entriesX.add(Entry(index.toFloat(), value.y.toFloat()))
-                entriesX.add(Entry(index.toFloat(), value.z.toFloat()))
-            }
-        }
+        Log.d("chart", "setData")
+        val xSet = LineDataSet(entriesZ, "x")
         xSet.axisDependency = YAxis.AxisDependency.LEFT
-        xSet.color = ColorTemplate.getHoloBlue()
-        xSet.setCircleColor(R.color.md_theme_light_background)
+        xSet.color = Color.Blue.hashCode()
         xSet.lineWidth = 2f
-        xSet.circleRadius = 3f
-        xSet.fillAlpha = 65
-        xSet.fillColor = ColorTemplate.getHoloBlue()
-        xSet.highLightColor = R.color.md_theme_light_onPrimary
+        xSet.setDrawCircles(false)
+        xSet.fillAlpha = 255
+        xSet.setDrawFilled(false)
         xSet.setDrawCircleHole(false)
-        //set1.setFillFormatter(new MyFillFormatter(0f));
-        //set1.setDrawHorizontalHighlightIndicator(false);
-        //set1.setVisible(false);
-        //set1.setCircleHoleColor(Color.WHITE);
 
         // create a dataset and give it a type
-        //set1.setFillFormatter(new MyFillFormatter(0f));
-        //set1.setDrawHorizontalHighlightIndicator(false);
-        //set1.setVisible(false);
-        //set1.setCircleHoleColor(Color.WHITE);
-
-        // create a dataset and give it a type
-        ySet.axisDependency = YAxis.AxisDependency.RIGHT
-        ySet.color = Color.Red.hashCode()
-        ySet.setCircleColor(Color.White.hashCode())
+        val ySet = LineDataSet(entriesZ, "z")
+        ySet.axisDependency = YAxis.AxisDependency.LEFT
+        ySet.color = Color.Yellow.hashCode()
         ySet.lineWidth = 2f
-        ySet.circleRadius = 3f
-        ySet.fillAlpha = 65
-        ySet.fillColor = Color.Red.hashCode()
-        ySet.setDrawCircleHole(false)
-        ySet.highLightColor = Color.Green.hashCode()
-        //set2.setFillFormatter(new MyFillFormatter(900f));
+        ySet.setDrawCircles(false)
+        ySet.fillAlpha = 255
+        ySet.setDrawFilled(false)
 
-        //set2.setFillFormatter(new MyFillFormatter(900f));
-        // zSet = LineDataSet(entriesZ, "z")
-        zSet.axisDependency = YAxis.AxisDependency.RIGHT
-        zSet.color = Color.Yellow.hashCode()
-        zSet.setCircleColor(Color.White.hashCode())
+        val zSet = LineDataSet(entriesZ, "z")
+        zSet.axisDependency = YAxis.AxisDependency.LEFT
+        zSet.color = Color.Green.hashCode()
+        zSet.setDrawCircles(false)
         zSet.lineWidth = 2f
-        zSet.circleRadius = 3f
-        zSet.fillAlpha = 65
-        zSet.fillColor = Color.Yellow.hashCode()
-        zSet.setDrawCircleHole(false)
-        zSet.highLightColor = Color.Yellow.hashCode()
+        zSet.circleRadius = 0f
+        zSet.fillAlpha = 255
+        zSet.setDrawFilled(false)
 
         val data = LineData(xSet, ySet, zSet)
         data.setValueTextColor(R.color.md_theme_light_background)
@@ -89,27 +66,26 @@ fun MovesenseGraph(graphData: List<MovesenseDataResponse.Array?>) {
         return data
     }
 
-    fun updateData() {
-        graphData.forEachIndexed { index, value ->
-            if (value != null) {
-                entriesX.add(Entry(index.toFloat(), value.x.toFloat()))
-                entriesX.add(Entry(index.toFloat(), value.y.toFloat()))
-                entriesX.add(Entry(index.toFloat(), value.z.toFloat()))
-            }
-        }
+    fun updateData(chart: LineChart) {
+        Log.d("chart", "updateData")
+
+        val xSet = chart.data.getDataSetByIndex(0) as LineDataSet
+        val ySet = chart.data.getDataSetByIndex(1) as LineDataSet
+        val zSet = chart.data.getDataSetByIndex(2) as LineDataSet
 
         xSet.values = entriesX;
         ySet.values = entriesY;
         zSet.values = entriesZ;
         chart.data.notifyDataChanged();
         chart.notifyDataSetChanged();
+        chart.invalidate()
     }
 
     AndroidView(
         modifier = Modifier.fillMaxSize(),
         factory = { context: Context ->
-            chart = LineChart(context)
-            chart.legend.isEnabled = false
+            val chart = LineChart(context)
+            chart.legend.isEnabled = true
 
             val desc = Description()
 
@@ -118,15 +94,15 @@ fun MovesenseGraph(graphData: List<MovesenseDataResponse.Array?>) {
             chart.data = setData()
             chart
         },
-        update = { view ->
-            if (view.data != null &&
-                view.data.dataSetCount > 0
+        update = { chart ->
+            if (chart.data != null &&
+                chart.data.dataSetCount > 0
             ) {
-                updateData()
+                updateData(chart)
             } else {
-                view.data = setData()
+                chart.data = setData()
+                chart.invalidate()
             }
-            view.invalidate()
         }
     )
 }
