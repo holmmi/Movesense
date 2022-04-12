@@ -29,7 +29,9 @@ fun MeasureView(
 ) {
     val graphData = measureViewModel.graphData.observeAsState()
     val selectedData = measureViewModel.dataAvg.observeAsState()
-    var measureType = measureViewModel.measureType.observeAsState()
+    val combinedData = measureViewModel.combinedData.observeAsState()
+    val measureType = measureViewModel.measureType.observeAsState()
+    val combineAxis = measureViewModel.combineAxis.observeAsState()
 
     Scaffold(
         topBar = {
@@ -149,7 +151,13 @@ fun MeasureView(
                             .fillMaxWidth()
                             .weight(13F)
                     ) {
-                        MovesenseGraph(graphData.value!!)
+                        MovesenseGraph(graphData.value!!, combineAxis.value!!, combinedData.value!!)
+                    }
+                    OutlinedButton(onClick = {
+                        measureViewModel.toggleCombineAxis()
+                    }
+                    ) {
+                        Text("Combine axis")
                     }
                     Card(
                         modifier = Modifier

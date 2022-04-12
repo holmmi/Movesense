@@ -3,7 +3,13 @@ package fi.metropolia.movesense.component
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
@@ -17,67 +23,77 @@ import fi.metropolia.movesense.R
 import fi.metropolia.movesense.model.MovesenseDataResponse
 
 @Composable
-fun MovesenseGraph(graphData: List<MovesenseDataResponse.Array?>) {
+fun MovesenseGraph(graphData: List<MovesenseDataResponse.Array?>, combineAxis: Boolean, combinedData: List<MovesenseDataResponse.Array?>) {
+    var dataTypeUpdated by rememberSaveable { mutableStateOf(true) }
+
     val entriesX = mutableListOf<Entry>()
     val entriesY = mutableListOf<Entry>()
     val entriesZ = mutableListOf<Entry>()
 
-    graphData.forEachIndexed { index, value ->
-        if (value != null) {
-            entriesX.add(Entry(index.toFloat(), value.x.toFloat()))
-            entriesY.add(Entry(index.toFloat(), value.y.toFloat()))
-            entriesZ.add(Entry(index.toFloat(), value.z.toFloat()))
+    if (!combineAxis) {
+        graphData.forEachIndexed { index, value ->
+            if (value != null && !combineAxis) {
+                entriesX.add(Entry(index.toFloat(), value.x.toFloat()))
+                entriesY.add(Entry(index.toFloat(), value.y.toFloat()))
+                entriesZ.add(Entry(index.toFloat(), value.z.toFloat()))
+            }
         }
     }
 
     fun setData(): LineData {
-        Log.d("chart", "setData")
-        val xSet = LineDataSet(entriesZ, "x")
+        val xSet = LineDataSet(entriesX, "x")
         xSet.axisDependency = YAxis.AxisDependency.LEFT
         xSet.color = Color.Blue.hashCode()
-        xSet.lineWidth = 2f
         xSet.setDrawCircles(false)
-        xSet.fillAlpha = 255
         xSet.setDrawFilled(false)
-        xSet.setDrawCircleHole(false)
+        xSet.lineWidth = 2f
+        //  xSet.fillAlpha = 255
 
-        // create a dataset and give it a type
-        val ySet = LineDataSet(entriesZ, "z")
-        ySet.axisDependency = YAxis.AxisDependency.LEFT
-        ySet.color = Color.Yellow.hashCode()
-        ySet.lineWidth = 2f
-        ySet.setDrawCircles(false)
-        ySet.fillAlpha = 255
-        ySet.setDrawFilled(false)
+        if (combineAxis) {
+            val ySet = LineDataSet(entriesY, "y")
+            ySet.axisDependency = YAxis.AxisDependency.LEFT
+            ySet.setDrawCircles(false)
+            ySet.setDrawFilled(false)
+            ySet.color = Color.Yellow.hashCode()
+            ySet.lineWidth = 2f
+            //  ySet.fillAlpha = 255
 
-        val zSet = LineDataSet(entriesZ, "z")
-        zSet.axisDependency = YAxis.AxisDependency.LEFT
-        zSet.color = Color.Green.hashCode()
-        zSet.setDrawCircles(false)
-        zSet.lineWidth = 2f
-        zSet.circleRadius = 0f
-        zSet.fillAlpha = 255
-        zSet.setDrawFilled(false)
+            val zSet = LineDataSet(entriesZ, "z")
+            zSet.axisDependency = YAxis.AxisDependency.LEFT
+            zSet.setDrawCircles(false)
+            zSet.setDrawFilled(false)
+            zSet.color = Color.Green.hashCode()
+            zSet.lineWidth = 2f
+            // zSet.fillAlpha = 255
 
-        val data = LineData(xSet, ySet, zSet)
-        data.setValueTextColor(R.color.md_theme_light_background)
-        data.setValueTextSize(9f)
+            val data = LineData(xSet, ySet, zSet)
+            data.setValueTextColor(R.color.md_theme_light_background)
+            data.setValueTextSize(9f)
+            return data
 
-        return data
+        } else {
+            val data = LineData(xSet)
+            data.setValueTextColor(R.color.md_theme_light_background)
+            data.setValueTextSize(9f)
+            return data
+        }
     }
 
     fun updateData(chart: LineChart) {
         Log.d("chart", "updateData")
-
         val xSet = chart.data.getDataSetByIndex(0) as LineDataSet
-        val ySet = chart.data.getDataSetByIndex(1) as LineDataSet
-        val zSet = chart.data.getDataSetByIndex(2) as LineDataSet
+        xSet.values = entriesX
 
-        xSet.values = entriesX;
-        ySet.values = entriesY;
-        zSet.values = entriesZ;
-        chart.data.notifyDataChanged();
-        chart.notifyDataSetChanged();
+        if (combineAxis) {
+            val ySet = chart.data.getDataSetByIndex(1) as LineDataSet
+            val zSet = chart.data.getDataSetByIndex(2) as LineDataSet
+
+            ySet.values = entriesY
+            zSet.values = entriesZ
+        }
+
+        chart.data.notifyDataChanged()
+        chart.notifyDataSetChanged()
         chart.invalidate()
     }
 
@@ -96,7 +112,8 @@ fun MovesenseGraph(graphData: List<MovesenseDataResponse.Array?>) {
         },
         update = { chart ->
             if (chart.data != null &&
-                chart.data.dataSetCount > 0
+                chart.data.dataSetCount > 0 &&
+                dataTypeUpdated
             ) {
                 updateData(chart)
             } else {

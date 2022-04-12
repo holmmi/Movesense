@@ -2,6 +2,10 @@ package fi.metropolia.movesense.view.measure
 
 import android.app.Application
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -17,10 +21,6 @@ import fi.metropolia.movesense.types.MeasureType
 class MeasureViewModel(application: Application) : AndroidViewModel(application) {
     private val movesenseConnector = MovesenseConnector(application.applicationContext)
 
-    private val _dataResp = MutableLiveData<MovesenseDataResponse>()
-    val dataResp: LiveData<MovesenseDataResponse>
-        get() = _dataResp
-
     private val _isConnected = MutableLiveData(false)
     val isConnected: LiveData<Boolean>
         get() = _isConnected
@@ -28,6 +28,15 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     private val _graphData = MutableLiveData<List<MovesenseDataResponse.Array?>>(null)
     val graphData: LiveData<List<MovesenseDataResponse.Array?>>
         get() = _graphData
+
+    private val _combineAxis = MutableLiveData(false)
+    val combineAxis: LiveData<Boolean>
+        get() = _combineAxis
+
+    //sum of from all axis
+    private val _combinedData = MutableLiveData<List<MovesenseDataResponse.Array?>>(null)
+    val combinedData: LiveData<List<MovesenseDataResponse.Array?>>
+        get() = _combinedData
 
     //averages of 10 measurements
     private val _dataAvg = MutableLiveData<MovesenseDataResponse.Array?>(null)
@@ -67,6 +76,10 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     fun changeMeasureType(measureType: MeasureType) {
         //_graphData.postValue(listOf(null))
        _measureType.postValue(measureType)
+    }
+
+    fun toggleCombineAxis() {
+        _combineAxis.postValue(!combineAxis.value!!)
     }
 
     private fun getInfo(serial: String) =
@@ -109,7 +122,7 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                         }
 
                         null -> {
-                            dataResp.value?.body?.arrayAcc
+                            dataResponse.body.arrayAcc
                         }
                     }
                     Log.d(TAG, "selecteddata ${selectedData?.get(0)?.x}")
@@ -121,7 +134,6 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                         _graphData.postValue(listOf(selectedData?.get(0)))
                     }
                     calculateAverage(selectedData)
-                    _dataResp.postValue(dataResponse)
                 }
             }
 
