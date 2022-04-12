@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.component.MovesenseGraph
 import fi.metropolia.movesense.extension.round
+import fi.metropolia.movesense.model.MovesenseDataResponse
 import fi.metropolia.movesense.types.MeasureType
 
 @ExperimentalMaterial3Api
@@ -151,7 +152,9 @@ fun MeasureView(
                             .fillMaxWidth()
                             .weight(13F)
                     ) {
-                        MovesenseGraph(graphData.value!!, combineAxis.value!!, combinedData.value!!)
+                        MovesenseGraph(graphData.value!!, combineAxis.value!!,
+                            combinedData.value!!
+                        )
                     }
                     OutlinedButton(onClick = {
                         measureViewModel.toggleCombineAxis()

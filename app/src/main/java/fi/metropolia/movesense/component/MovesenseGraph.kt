@@ -1,15 +1,8 @@
 package fi.metropolia.movesense.component
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
@@ -23,8 +16,12 @@ import fi.metropolia.movesense.R
 import fi.metropolia.movesense.model.MovesenseDataResponse
 
 @Composable
-fun MovesenseGraph(graphData: List<MovesenseDataResponse.Array?>, combineAxis: Boolean, combinedData: List<MovesenseDataResponse.Array?>) {
-    var dataTypeUpdated by rememberSaveable { mutableStateOf(true) }
+fun MovesenseGraph(
+    graphData: List<MovesenseDataResponse.Array?>,
+    combineAxis: Boolean,
+    combinedData: List<Double>
+) {
+  //  val dataTypeUpdated by rememberSaveable { mutableStateOf(true) }
 
     val entriesX = mutableListOf<Entry>()
     val entriesY = mutableListOf<Entry>()
@@ -32,11 +29,15 @@ fun MovesenseGraph(graphData: List<MovesenseDataResponse.Array?>, combineAxis: B
 
     if (!combineAxis) {
         graphData.forEachIndexed { index, value ->
-            if (value != null && !combineAxis) {
+            if (value != null) {
                 entriesX.add(Entry(index.toFloat(), value.x.toFloat()))
                 entriesY.add(Entry(index.toFloat(), value.y.toFloat()))
                 entriesZ.add(Entry(index.toFloat(), value.z.toFloat()))
             }
+        }
+    } else {
+        combinedData.forEachIndexed { index, value ->
+            entriesX.add(Entry(index.toFloat(), value.toFloat()))
         }
     }
 
@@ -49,7 +50,7 @@ fun MovesenseGraph(graphData: List<MovesenseDataResponse.Array?>, combineAxis: B
         xSet.lineWidth = 2f
         //  xSet.fillAlpha = 255
 
-        if (combineAxis) {
+        if (!combineAxis) {
             val ySet = LineDataSet(entriesY, "y")
             ySet.axisDependency = YAxis.AxisDependency.LEFT
             ySet.setDrawCircles(false)
@@ -80,11 +81,11 @@ fun MovesenseGraph(graphData: List<MovesenseDataResponse.Array?>, combineAxis: B
     }
 
     fun updateData(chart: LineChart) {
-        Log.d("chart", "updateData")
+       // Log.d("chart", "updateData")
         val xSet = chart.data.getDataSetByIndex(0) as LineDataSet
         xSet.values = entriesX
 
-        if (combineAxis) {
+        if (!combineAxis) {
             val ySet = chart.data.getDataSetByIndex(1) as LineDataSet
             val zSet = chart.data.getDataSetByIndex(2) as LineDataSet
 
@@ -112,8 +113,7 @@ fun MovesenseGraph(graphData: List<MovesenseDataResponse.Array?>, combineAxis: B
         },
         update = { chart ->
             if (chart.data != null &&
-                chart.data.dataSetCount > 0 &&
-                dataTypeUpdated
+                chart.data.dataSetCount > 0
             ) {
                 updateData(chart)
             } else {

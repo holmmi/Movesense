@@ -2,10 +2,6 @@ package fi.metropolia.movesense.view.measure
 
 import android.app.Application
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -34,8 +30,8 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
         get() = _combineAxis
 
     //sum of from all axis
-    private val _combinedData = MutableLiveData<List<MovesenseDataResponse.Array?>>(null)
-    val combinedData: LiveData<List<MovesenseDataResponse.Array?>>
+    private val _combinedData = MutableLiveData<List<Double>>(listOf(0.0))
+    val combinedData: LiveData<List<Double>>
         get() = _combinedData
 
     //averages of 10 measurements
