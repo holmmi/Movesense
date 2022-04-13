@@ -70,7 +70,6 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
         })
 
     fun changeMeasureType(measureType: MeasureType) {
-        //_graphData.postValue(listOf(null))
        _measureType.postValue(measureType)
     }
 

@@ -5,9 +5,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.outlined.Directions
+import androidx.compose.material.icons.outlined.DirectionsRun
+import androidx.compose.material.icons.outlined.ErrorOutline
+import androidx.compose.material.icons.outlined.FlipCameraAndroid
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,7 +22,6 @@ import androidx.navigation.NavController
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.component.MovesenseGraph
 import fi.metropolia.movesense.extension.round
-import fi.metropolia.movesense.model.MovesenseDataResponse
 import fi.metropolia.movesense.types.MeasureType
 
 @ExperimentalMaterial3Api
@@ -46,25 +49,11 @@ fun MeasureView(
             )
         },
         content = {
-
             val selectedBtnColor = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.surface
             )
 
-            /*selectedData = when (measureType) {
-                MeasureType.Acceleration -> {
-                    graphData.value?.map { it.arrayAcc[0] } ?: listOf()
-                }
-
-                MeasureType.Gyro -> {
-                    graphData.value?.map { it.arrayGyro[0] } ?: listOf()
-                }
-
-                MeasureType.Magnetic -> {
-                    graphData.value?.map { it.arrayMagn[0] } ?: listOf()
-                }
-            }*/
             if (selectedData.value != null && graphData.value != null && measureViewModel.isConnected.value == true) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Row(

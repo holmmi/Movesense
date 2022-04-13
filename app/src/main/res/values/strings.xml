@@ -15,6 +15,7 @@
     <string name="acc">Acceleration</string>
     <string name="magn">Magnetic field</string>
     <string name="gyro">Gyro</string>
+    <string name="live_graph">Live graph</string>
     <!-- History -->
     <string name="history">History</string>
     <!-- Settings -->

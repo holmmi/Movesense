@@ -54,20 +54,22 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
         },
         content = {
             Column(modifier = Modifier.fillMaxSize()) {
-                MovesenseSearcher(
-                    movesenseDevices = movesenseDevices.value,
-                    onConnect = {
-                        if (!movesenseDevices.value.isNullOrEmpty()) {
-                            navController.navigate(
-                                NavigationRoutes.MEASURE.replace(
-                                    "{address}",
-                                    movesenseDevices.value!![it].macAddress
+                if (permissionsGiven) {
+                    MovesenseSearcher(
+                        movesenseDevices = movesenseDevices.value,
+                        onConnect = {
+                            if (!movesenseDevices.value.isNullOrEmpty()) {
+                                navController.navigate(
+                                    NavigationRoutes.MEASURE.replace(
+                                        "{address}",
+                                        movesenseDevices.value!![it].macAddress
+                                    )
                                 )
-                            )
-                        }
-                    },
-                    isSearching = isSearching.value ?: false,
-                )
+                            }
+                        },
+                        isSearching = isSearching.value ?: false,
+                    )
+                }
             }
         }
     )

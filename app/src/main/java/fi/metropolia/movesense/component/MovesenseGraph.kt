@@ -21,8 +21,6 @@ fun MovesenseGraph(
     combineAxis: Boolean,
     combinedData: List<Double>
 ) {
-  //  val dataTypeUpdated by rememberSaveable { mutableStateOf(true) }
-
     val entriesX = mutableListOf<Entry>()
     val entriesY = mutableListOf<Entry>()
     val entriesZ = mutableListOf<Entry>()
@@ -48,7 +46,6 @@ fun MovesenseGraph(
         xSet.setDrawCircles(false)
         xSet.setDrawFilled(false)
         xSet.lineWidth = 2f
-        //  xSet.fillAlpha = 255
 
         if (!combineAxis) {
             val ySet = LineDataSet(entriesY, "y")
@@ -57,7 +54,6 @@ fun MovesenseGraph(
             ySet.setDrawFilled(false)
             ySet.color = Color.Yellow.hashCode()
             ySet.lineWidth = 2f
-            //  ySet.fillAlpha = 255
 
             val zSet = LineDataSet(entriesZ, "z")
             zSet.axisDependency = YAxis.AxisDependency.LEFT
@@ -65,7 +61,6 @@ fun MovesenseGraph(
             zSet.setDrawFilled(false)
             zSet.color = Color.Green.hashCode()
             zSet.lineWidth = 2f
-            // zSet.fillAlpha = 255
 
             val data = LineData(xSet, ySet, zSet)
             data.setValueTextColor(R.color.md_theme_light_background)
@@ -81,7 +76,6 @@ fun MovesenseGraph(
     }
 
     fun updateData(chart: LineChart) {
-       // Log.d("chart", "updateData")
         val xSet = chart.data.getDataSetByIndex(0) as LineDataSet
         xSet.values = entriesX
 
@@ -106,7 +100,7 @@ fun MovesenseGraph(
 
             val desc = Description()
 
-            desc.text = "Test graph"
+            desc.text = context.getString(R.string.live_graph)
             chart.description = desc
             chart.data = setData()
             chart
