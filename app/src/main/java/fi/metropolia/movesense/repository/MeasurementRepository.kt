@@ -10,9 +10,10 @@ import kotlinx.coroutines.withContext
 class MeasurementRepository(context: Context) {
     private val measurementDao = MovesenseDatabase.getInstance(context).measurementDao()
 
-    suspend fun addMeasurementInformation(vararg measurementInformation: MeasurementInformation) = withContext(Dispatchers.IO) {
-        measurementDao.addMeasurementInformation(*measurementInformation)
-    }
+    suspend fun addMeasurementInformation(vararg measurementInformation: MeasurementInformation) =
+        withContext(Dispatchers.IO) {
+            measurementDao.addMeasurementInformation(*measurementInformation)
+        }
 
     suspend fun deleteMeasurementInformation(id: Long) = withContext(Dispatchers.IO) {
         measurementDao.deleteMeasurementInformation(id)
