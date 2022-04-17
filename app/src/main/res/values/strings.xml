@@ -16,4 +16,7 @@
     <string name="history">History</string>
     <!-- Settings -->
     <string name="settings">Settings</string>
+    <!-- Logging -->
+    <string name="logging">Logging</string>
+    <string name="choose_device">Choose a device to configure sensor logging or retrieve sensor logs</string>
 </resources>

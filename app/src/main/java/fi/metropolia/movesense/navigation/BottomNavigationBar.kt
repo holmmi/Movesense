@@ -1,6 +1,7 @@
 package fi.metropolia.movesense.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Feed
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
@@ -25,6 +26,7 @@ fun BottomNavigationBar(navController: NavController) {
 
         val items = listOf(
             NavigationItem.Start,
+            NavigationItem.Logging,
             NavigationItem.History,
             NavigationItem.Settings
         )
@@ -54,4 +56,5 @@ private sealed class NavigationItem(val route: String, val navigationIcon: Image
     object Start : NavigationItem(NavigationRoutes.START, Icons.Filled.Home, R.string.start)
     object History : NavigationItem(NavigationRoutes.HISTORY, Icons.Filled.History, R.string.history)
     object Settings : NavigationItem(NavigationRoutes.SETTINGS, Icons.Filled.Settings, R.string.settings)
+    object Logging : NavigationItem(NavigationRoutes.LOGGING, Icons.Filled.Feed, R.string.logging)
 }

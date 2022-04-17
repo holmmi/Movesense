@@ -4,12 +4,16 @@ import android.content.Context
 import android.util.Log
 import com.movesense.mds.*
 import com.movesense.mds.Mds.URI_EVENTLISTENER
+import fi.metropolia.movesense.bluetooth.queue.MovesenseCommand
+import fi.metropolia.movesense.bluetooth.queue.MovesenseCommandExecutor
+import fi.metropolia.movesense.bluetooth.queue.MovesenseCommandExecutorListener
 import java.lang.Exception
 
 //some code is from https://bitbucket.org/movesense/movesense-mobile-lib/src/master/android/samples/SensorSample/app/src/main/java/com/movesense/samples/sensorsample/MainActivity.java
 
 class MovesenseConnector(context: Context) {
     private val mds: Mds = Mds.builder().build(context)
+    private val movesenseCommandExecutor = MovesenseCommandExecutor(mds)
     private var mdsSubscription: MdsSubscription? = null
 
     fun connect(deviceAddress: String, callback: MdsConnectionListener) {
@@ -47,6 +51,12 @@ class MovesenseConnector(context: Context) {
             mdsSubscription!!.unsubscribe()
             mdsSubscription = null
         }
+    }
+
+    fun executeMovesenseCommands(movesenseCommands: List<MovesenseCommand>,
+                                 movesenseCommandExecutorListener: MovesenseCommandExecutorListener) {
+        movesenseCommandExecutor.movesenseCommandExecutorListener = movesenseCommandExecutorListener
+        movesenseCommandExecutor.executeCommands(movesenseCommands)
     }
 
     companion object {
