@@ -20,4 +20,6 @@
     <string name="history">History</string>
     <!-- Settings -->
     <string name="settings">Settings</string>
+    <string name="interval">Interval</string>
+    <string name="timeout">Timeout</string>
 </resources>

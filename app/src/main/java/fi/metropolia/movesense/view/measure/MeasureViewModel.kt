@@ -6,10 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
-import com.movesense.mds.MdsConnectionListener
-import com.movesense.mds.MdsException
-import com.movesense.mds.MdsNotificationListener
-import com.movesense.mds.MdsResponseListener
+import com.movesense.mds.*
 import fi.metropolia.movesense.bluetooth.MovesenseConnector
 import fi.metropolia.movesense.model.MovesenseDataResponse
 import fi.metropolia.movesense.types.MeasureType
@@ -30,7 +27,7 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
         get() = _combineAxis
 
     //sum of from all axis
-    private val _combinedData = MutableLiveData<List<Double>>(listOf(0.0))
+    private val _combinedData = MutableLiveData(listOf(0.0))
     val combinedData: LiveData<List<Double>>
         get() = _combinedData
 
@@ -52,7 +49,7 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
             override fun onConnectionComplete(macAddress: String?, serial: String?) {
                 Log.d(TAG, "device onConnectionComplete $macAddress $serial")
                 if (serial != null) {
-                    getInfo(serial)
+                    turnAdvertisingOn(serial)
                     subscribe(serial)
                     _isConnected.postValue(true)
                 }
@@ -64,10 +61,20 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
 
             override fun onDisconnect(p0: String?) {
                 Log.d(TAG, "device onDisconnect $p0")
-                Log.d("btstatus", "device onDisconnect $p0")
                 _isConnected.postValue(false)
             }
         })
+
+    fun turnAdvertisingOn(serial: String) = movesenseConnector.turnAdvertisingOn(serial, object : MdsResponseListener {
+        override fun onSuccess(data: String?, header: MdsHeader?) {
+            Log.d(TAG, "turnAdvertisingOn onSuccess data: $data")
+        }
+
+        override fun onError(p0: MdsException?) {
+            TODO("Not yet implemented")
+        }
+
+    })
 
     fun changeMeasureType(measureType: MeasureType) {
        _measureType.postValue(measureType)
@@ -76,23 +83,6 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     fun toggleCombineAxis() {
         _combineAxis.postValue(!combineAxis.value!!)
     }
-
-    private fun getInfo(serial: String) =
-        movesenseConnector.getInfo(serial, object : MdsResponseListener {
-            override fun onSuccess(s: String) {
-                Log.i(
-                    TAG,
-                    "Device $serial /info request succesful: $s"
-                )
-            }
-
-            override fun onError(e: MdsException) {
-                Log.e(
-                    TAG,
-                    "Device $serial /info returned error: ${e.localizedMessage}"
-                )
-            }
-        })
 
     private fun subscribe(serial: String) =
         movesenseConnector.subscribe(serial, object : MdsNotificationListener {
@@ -120,13 +110,11 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                             dataResponse.body.arrayAcc
                         }
                     }
-                    Log.d(TAG, "selecteddata ${selectedData?.get(0)?.x}")
-                    Log.d(TAG, "graphData ${graphData.value?.get(0)}")
 
                     if (graphData.value != null) {
-                        _graphData.postValue(graphData.value?.plus(selectedData?.get(0)))
+                        _graphData.postValue(graphData.value?.plus(selectedData[0]))
                     } else {
-                        _graphData.postValue(listOf(selectedData?.get(0)))
+                        _graphData.postValue(listOf(selectedData[0]))
                     }
                     calculateAverage(selectedData)
                 }
