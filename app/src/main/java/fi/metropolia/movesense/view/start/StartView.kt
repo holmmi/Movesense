@@ -1,5 +1,6 @@
 package fi.metropolia.movesense.view.start
 
+import android.app.Application
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
@@ -22,14 +23,15 @@ import fi.metropolia.movesense.util.PermissionUtil
 
 @ExperimentalMaterial3Api
 @Composable
-fun StartView(navController: NavController, startViewModel: StartViewModel = viewModel()) {
+fun StartView(navController: NavController) {
+    val context = LocalContext.current
+    val startViewModel = StartViewModel(context.applicationContext as Application)
     val movesenseDevices = startViewModel.movesenseDevices.observeAsState()
     var permissionsGiven by rememberSaveable { mutableStateOf(false) }
     val isSearching = startViewModel.isSearching.observeAsState()
-    val context = LocalContext.current
     val permissionsLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            permissionsGiven = it.values.all { value -> value }
+            it.values.all { value -> value }
         }
 
     Scaffold(
@@ -69,6 +71,12 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
                         },
                         isSearching = isSearching.value ?: false,
                     )
+                } else {
+                    permissionsGiven =
+                        PermissionUtil.checkBluetoothPermissions(
+                            context,
+                            onCheckPermissions = { permissionsLauncher.launch(it) }
+                        )
                 }
             }
         }
