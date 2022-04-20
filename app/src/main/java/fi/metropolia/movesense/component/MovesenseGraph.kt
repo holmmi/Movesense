@@ -1,13 +1,18 @@
 package fi.metropolia.movesense.component
 
+import android.app.Application
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.YAxis
@@ -15,18 +20,19 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import fi.metropolia.movesense.R
+import fi.metropolia.movesense.extension.getActivity
 import fi.metropolia.movesense.model.MovesenseDataResponse
 import fi.metropolia.movesense.view.measure.MeasureViewModel
 
 @Composable
 fun MovesenseGraph(
-   // graphData: List<MovesenseDataResponse.Array?>?
     measureViewModel: MeasureViewModel
 ) {
     val entriesX = mutableListOf<Entry>()
     val entriesY = mutableListOf<Entry>()
     val entriesZ = mutableListOf<Entry>()
-    val graphData by measureViewModel.graphData.observeAsState()
+    val combinedData by measureViewModel.combinedData.observeAsState()
+    val combineAxis by measureViewModel.combineAxis.observeAsState()
 
     fun setData(): LineData {
         val xSet = LineDataSet(entriesX, "x")
@@ -64,47 +70,50 @@ fun MovesenseGraph(
         }
     }
 
-    if (!measureViewModel.combineAxis.value!!) {
-        graphData?.forEachIndexed { index, value ->
-            if (value != null) {
-                entriesX.add(Entry(index.toFloat(), value.x.toFloat()))
-                entriesY.add(Entry(index.toFloat(), value.y.toFloat()))
-                entriesZ.add(Entry(index.toFloat(), value.z.toFloat()))
+    var index by rememberSaveable { mutableStateOf(0) }
+
+    val graphDataObserver = Observer<List<MovesenseDataResponse.Array?>> { newData ->
+        if (newData.isNotEmpty() && combineAxis == false) {
+            entriesX.add(Entry(index.toFloat(), newData!!.last()?.x!!.toFloat()))
+            entriesY.add(Entry(index.toFloat(), newData.last()?.y!!.toFloat()))
+            entriesZ.add(Entry(index.toFloat(), newData.last()?.z!!.toFloat()))
+            index += 1
+        } else {
+            combinedData?.let { value ->
+                entriesX.add(Entry(index.toFloat(), value.last().toFloat()))
             }
-        }
-    } else {
-        measureViewModel.combinedData.value?.forEachIndexed { index, value ->
-            Log.d("DBG", value.toString())
-            entriesX.add(Entry(index.toFloat(), value.toFloat()))
         }
     }
 
+    measureViewModel.graphData.observe(LocalLifecycleOwner.current, graphDataObserver)
 
     fun updateData(chart: LineChart) {
         val xSet = chart.data.getDataSetByIndex(0) as LineDataSet
         xSet.values = entriesX
 
-        if (!measureViewModel.combineAxis.value!!) {
-            val ySet = chart.data.getDataSetByIndex(1) as LineDataSet
-            val zSet = chart.data.getDataSetByIndex(2) as LineDataSet
+        val ySet = chart.data.getDataSetByIndex(1) as LineDataSet
+        val zSet = chart.data.getDataSetByIndex(2) as LineDataSet
 
+        if (!measureViewModel.combineAxis.value!!) {
             ySet.values = entriesY
             zSet.values = entriesZ
+        } else {
+            if (measureViewModel.clearData.value == true) {
+                ySet.clear()
+                zSet.clear()
+            }
         }
-
         chart.data.notifyDataChanged()
         chart.notifyDataSetChanged()
         chart.invalidate()
     }
 
-    /*if (measureViewModel.clearData.value == true) {
+    if (measureViewModel.clearData.value == true) {
         entriesX.clear()
         entriesY.clear()
         entriesZ.clear()
-        //setData()
         measureViewModel.toggleClearData()
-
-    }*/
+    }
 
     AndroidView(
         modifier = Modifier.fillMaxSize(),

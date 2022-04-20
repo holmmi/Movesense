@@ -23,9 +23,8 @@ import fi.metropolia.movesense.util.PermissionUtil
 
 @ExperimentalMaterial3Api
 @Composable
-fun StartView(navController: NavController) {
+fun StartView(navController: NavController, startViewModel: StartViewModel = viewModel()) {
     val context = LocalContext.current
-    val startViewModel = StartViewModel(context.applicationContext as Application)
     val movesenseDevices = startViewModel.movesenseDevices.observeAsState()
     var permissionsGiven by rememberSaveable { mutableStateOf(false) }
     val isSearching = startViewModel.isSearching.observeAsState()

@@ -5,16 +5,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.outlined.Directions
-import androidx.compose.material.icons.outlined.DirectionsRun
-import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material.icons.outlined.FlipCameraAndroid
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -32,9 +30,8 @@ fun MeasureView(
     address: String?,
     measureViewModel: MeasureViewModel = viewModel()
 ) {
-    val selectedData = measureViewModel.dataAvg.observeAsState()
-    val measureType = measureViewModel.measureType.observeAsState()
-    val graphData by measureViewModel.graphData.observeAsState()
+    val selectedData by measureViewModel.dataAvg.observeAsState()
+    val measureType by measureViewModel.measureType.observeAsState()
 
     Scaffold(
         topBar = {
@@ -53,7 +50,7 @@ fun MeasureView(
                 contentColor = MaterialTheme.colorScheme.surface
             )
 
-            if (selectedData.value != null && measureViewModel.isConnected.value == true) {
+            if (selectedData != null && measureViewModel.isConnected.value == true) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Row(
                         modifier = Modifier
@@ -67,17 +64,17 @@ fun MeasureView(
                                 .height(40.dp)
                                 .weight(3F),
                             onClick = {
-                               // measureViewModel.toggleClearData()
+                                measureViewModel.toggleClearData()
                                 measureViewModel.changeMeasureType(MeasureType.Acceleration)
                             },
                             colors =
-                            if (measureType.value == MeasureType.Acceleration) {
+                            if (measureType == MeasureType.Acceleration) {
                                 selectedBtnColor
                             } else {
                                 ButtonDefaults.outlinedButtonColors()
                             }
                         ) {
-                            if (measureType.value == MeasureType.Acceleration) {
+                            if (measureType == MeasureType.Acceleration) {
                                 Icon(
                                     modifier = Modifier.padding(end = 8.dp),
                                     imageVector = Icons.Default.Check,
@@ -92,17 +89,17 @@ fun MeasureView(
                                 .height(40.dp)
                                 .weight(2F),
                             onClick = {
-                               // measureViewModel.toggleClearData()
+                                measureViewModel.toggleClearData()
                                 measureViewModel.changeMeasureType(MeasureType.Gyro)
                             },
                             colors =
-                            if (measureType.value == MeasureType.Gyro) {
+                            if (measureType == MeasureType.Gyro) {
                                 selectedBtnColor
                             } else {
                                 ButtonDefaults.outlinedButtonColors()
                             }
                         ) {
-                            if (measureType.value == MeasureType.Gyro) {
+                            if (measureType == MeasureType.Gyro) {
                                 Icon(
                                     modifier = Modifier.padding(end = 8.dp),
                                     imageVector = Icons.Default.Check,
@@ -124,17 +121,17 @@ fun MeasureView(
                                 .padding(8.dp)
                                 .height(40.dp),
                             onClick = {
-                               // measureViewModel.toggleClearData()
+                                measureViewModel.toggleClearData()
                                 measureViewModel.changeMeasureType(MeasureType.Magnetic)
                             },
                             colors =
-                            if (measureType.value == MeasureType.Magnetic) {
+                            if (measureType == MeasureType.Magnetic) {
                                 selectedBtnColor
                             } else {
                                 ButtonDefaults.outlinedButtonColors()
                             }
                         ) {
-                            if (measureType.value == MeasureType.Magnetic) {
+                            if (measureType == MeasureType.Magnetic) {
                                 Icon(
                                     modifier = Modifier.padding(end = 8.dp),
                                     imageVector = Icons.Default.Check,
@@ -154,10 +151,9 @@ fun MeasureView(
                         )
                     }
                     OutlinedButton(onClick = {
+                        measureViewModel.toggleClearData()
                         measureViewModel.toggleCombineAxis()
-                       // measureViewModel.toggleClearData()
-                    }
-                    ) {
+                    }, modifier = Modifier.align(CenterHorizontally)) {
                         Text(stringResource(id = R.string.combine_axis))
                     }
                     Card(
@@ -177,10 +173,10 @@ fun MeasureView(
                                     modifier = Modifier
                                         .align(Alignment.Center)
                                         .size(48.dp),
-                                    imageVector = when (measureType.value) {
+                                    imageVector = when (measureType) {
                                         MeasureType.Acceleration -> Icons.Outlined.DirectionsRun
                                         MeasureType.Gyro -> Icons.Outlined.FlipCameraAndroid
-                                        MeasureType.Magnetic -> Icons.Outlined.Directions
+                                        MeasureType.Magnetic -> Icons.Outlined.Polymer
                                         else -> {
                                             Icons.Outlined.ErrorOutline
                                         }
@@ -188,16 +184,16 @@ fun MeasureView(
                                 )
                             }
                             Text(
-                                text = measureType.value!!.name, modifier = Modifier
+                                text = measureType!!.name, modifier = Modifier
                                     .padding(8.dp)
                                     .align(
                                         Alignment.CenterVertically
                                     )
                             )
                             Column(modifier = Modifier.padding(8.dp)) {
-                                Text("x: ${selectedData.value!!.x.round(3)}")
-                                Text("y: ${selectedData.value!!.y.round(3)}")
-                                Text("z: ${selectedData.value!!.z.round(3)}")
+                                Text("x: ${selectedData!!.x.round(3)}")
+                                Text("y: ${selectedData!!.y.round(3)}")
+                                Text("z: ${selectedData!!.z.round(3)}")
                             }
                         }
                     }

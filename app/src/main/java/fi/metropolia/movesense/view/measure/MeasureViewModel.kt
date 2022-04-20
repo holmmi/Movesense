@@ -5,11 +5,14 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.movesense.mds.*
 import fi.metropolia.movesense.bluetooth.MovesenseConnector
 import fi.metropolia.movesense.model.MovesenseDataResponse
 import fi.metropolia.movesense.types.MeasureType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -29,28 +32,9 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
         get() = _combineAxis
 
     //sum of all axis
-    private val prevData: List<Double>
-        get() = combinedData.value ?: listOf(0.0)
-
     private val _combinedData = MutableLiveData<List<Double>>()
     val combinedData: LiveData<List<Double>>
         get() = _combinedData
-
-    private fun setCombinedData() {
-        if (combinedData.value != null) {
-            _combinedData.postValue(
-                combinedData.value?.plus(
-                    sqrt(
-                        (graphData.value?.last()!!.x.pow(2)) +
-                                (graphData.value?.last()!!.y.pow(2)) +
-                                (graphData.value?.last()!!.z.pow(2))
-                    ) - G
-                )
-            )
-        } else {
-            _combinedData.postValue(listOf(0.0))
-        }
-    }
 
     //averages of 10 measurements
     private val _dataAvg = MutableLiveData<MovesenseDataResponse.Array?>(null)
@@ -62,6 +46,8 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
         get() = _measureType
 
     private val _clearData = MutableLiveData(false)
+    val clearData: LiveData<Boolean>
+        get() = _clearData
 
     fun connect(address: String) =
         movesenseConnector.connect(address, object : MdsConnectionListener {
@@ -94,6 +80,11 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
 
     fun toggleCombineAxis() {
         _combineAxis.postValue(!combineAxis.value!!)
+    }
+
+    fun toggleClearData() {
+        _graphData.postValue(listOf())
+        _clearData.postValue(!_clearData.value!!)
     }
 
     private fun getInfo(serial: String) =
@@ -145,8 +136,11 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                     } else {
                         _graphData.postValue(listOf(selectedData[0]))
                     }
+                    viewModelScope.launch(Dispatchers.IO) {
+                        setCombinedData()
+                    }
                     calculateAverage(selectedData)
-                    setCombinedData()
+
                 }
             }
 
@@ -158,11 +152,26 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
             }
         })
 
-    private var index: Int = 0
+    private fun setCombinedData() {
+        if (combinedData.value != null && !graphData.value.isNullOrEmpty()) {
+            _combinedData.postValue(
+                combinedData.value?.plus(
+                    sqrt(
+                        (graphData.value?.last()!!.x.pow(2)) +
+                                (graphData.value?.last()!!.y.pow(2)) +
+                                (graphData.value?.last()!!.z.pow(2))
+                    ) - G
+                )
+            )
+        } else {
+            _combinedData.postValue(listOf(0.0))
+        }
 
+    }
+
+    private var index: Int = 0
     private fun calculateAverage(selectedData: Array<MovesenseDataResponse.Array>?) {
         index++
-
         if (index > 9) {
             val xAvg = selectedData?.map { it.x }?.toTypedArray()?.average()
             val yAvg = selectedData?.map { it.y }?.toTypedArray()?.average()
