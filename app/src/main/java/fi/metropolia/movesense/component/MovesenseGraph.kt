@@ -1,8 +1,10 @@
 package fi.metropolia.movesense.component
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
@@ -14,30 +16,17 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.model.MovesenseDataResponse
+import fi.metropolia.movesense.view.measure.MeasureViewModel
 
 @Composable
 fun MovesenseGraph(
-    graphData: List<MovesenseDataResponse.Array?>,
-    combineAxis: Boolean,
-    combinedData: List<Double>
+   // graphData: List<MovesenseDataResponse.Array?>?
+    measureViewModel: MeasureViewModel
 ) {
     val entriesX = mutableListOf<Entry>()
     val entriesY = mutableListOf<Entry>()
     val entriesZ = mutableListOf<Entry>()
-
-    if (!combineAxis) {
-        graphData.forEachIndexed { index, value ->
-            if (value != null) {
-                entriesX.add(Entry(index.toFloat(), value.x.toFloat()))
-                entriesY.add(Entry(index.toFloat(), value.y.toFloat()))
-                entriesZ.add(Entry(index.toFloat(), value.z.toFloat()))
-            }
-        }
-    } else {
-        combinedData.forEachIndexed { index, value ->
-            entriesX.add(Entry(index.toFloat(), value.toFloat()))
-        }
-    }
+    val graphData by measureViewModel.graphData.observeAsState()
 
     fun setData(): LineData {
         val xSet = LineDataSet(entriesX, "x")
@@ -47,7 +36,7 @@ fun MovesenseGraph(
         xSet.setDrawFilled(false)
         xSet.lineWidth = 2f
 
-        if (!combineAxis) {
+        if (!measureViewModel.combineAxis.value!!) {
             val ySet = LineDataSet(entriesY, "y")
             ySet.axisDependency = YAxis.AxisDependency.LEFT
             ySet.setDrawCircles(false)
@@ -75,11 +64,27 @@ fun MovesenseGraph(
         }
     }
 
+    if (!measureViewModel.combineAxis.value!!) {
+        graphData?.forEachIndexed { index, value ->
+            if (value != null) {
+                entriesX.add(Entry(index.toFloat(), value.x.toFloat()))
+                entriesY.add(Entry(index.toFloat(), value.y.toFloat()))
+                entriesZ.add(Entry(index.toFloat(), value.z.toFloat()))
+            }
+        }
+    } else {
+        measureViewModel.combinedData.value?.forEachIndexed { index, value ->
+            Log.d("DBG", value.toString())
+            entriesX.add(Entry(index.toFloat(), value.toFloat()))
+        }
+    }
+
+
     fun updateData(chart: LineChart) {
         val xSet = chart.data.getDataSetByIndex(0) as LineDataSet
         xSet.values = entriesX
 
-        if (!combineAxis) {
+        if (!measureViewModel.combineAxis.value!!) {
             val ySet = chart.data.getDataSetByIndex(1) as LineDataSet
             val zSet = chart.data.getDataSetByIndex(2) as LineDataSet
 
@@ -91,6 +96,15 @@ fun MovesenseGraph(
         chart.notifyDataSetChanged()
         chart.invalidate()
     }
+
+    /*if (measureViewModel.clearData.value == true) {
+        entriesX.clear()
+        entriesY.clear()
+        entriesZ.clear()
+        //setData()
+        measureViewModel.toggleClearData()
+
+    }*/
 
     AndroidView(
         modifier = Modifier.fillMaxSize(),

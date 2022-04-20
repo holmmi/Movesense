@@ -16,6 +16,7 @@
     <string name="magn">Magnetic field</string>
     <string name="gyro">Gyro</string>
     <string name="live_graph">Live graph</string>
+    <string name="combine_axis">Combine axis</string>
     <!-- History -->
     <string name="history">History</string>
     <!-- Settings -->

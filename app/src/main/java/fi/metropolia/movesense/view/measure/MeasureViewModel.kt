@@ -6,13 +6,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
-import com.movesense.mds.MdsConnectionListener
-import com.movesense.mds.MdsException
-import com.movesense.mds.MdsNotificationListener
-import com.movesense.mds.MdsResponseListener
+import com.movesense.mds.*
 import fi.metropolia.movesense.bluetooth.MovesenseConnector
 import fi.metropolia.movesense.model.MovesenseDataResponse
 import fi.metropolia.movesense.types.MeasureType
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class MeasureViewModel(application: Application) : AndroidViewModel(application) {
     private val movesenseConnector = MovesenseConnector(application.applicationContext)
@@ -21,7 +20,7 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     val isConnected: LiveData<Boolean>
         get() = _isConnected
 
-    private val _graphData = MutableLiveData<List<MovesenseDataResponse.Array?>>(null)
+    private val _graphData = MutableLiveData<List<MovesenseDataResponse.Array?>>()
     val graphData: LiveData<List<MovesenseDataResponse.Array?>>
         get() = _graphData
 
@@ -29,10 +28,29 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     val combineAxis: LiveData<Boolean>
         get() = _combineAxis
 
-    //sum of from all axis
-    private val _combinedData = MutableLiveData<List<Double>>(listOf(0.0))
+    //sum of all axis
+    private val prevData: List<Double>
+        get() = combinedData.value ?: listOf(0.0)
+
+    private val _combinedData = MutableLiveData<List<Double>>()
     val combinedData: LiveData<List<Double>>
         get() = _combinedData
+
+    private fun setCombinedData() {
+        if (combinedData.value != null) {
+            _combinedData.postValue(
+                combinedData.value?.plus(
+                    sqrt(
+                        (graphData.value?.last()!!.x.pow(2)) +
+                                (graphData.value?.last()!!.y.pow(2)) +
+                                (graphData.value?.last()!!.z.pow(2))
+                    ) - G
+                )
+            )
+        } else {
+            _combinedData.postValue(listOf(0.0))
+        }
+    }
 
     //averages of 10 measurements
     private val _dataAvg = MutableLiveData<MovesenseDataResponse.Array?>(null)
@@ -43,14 +61,16 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     val measureType: LiveData<MeasureType>
         get() = _measureType
 
+    private val _clearData = MutableLiveData(false)
+
     fun connect(address: String) =
         movesenseConnector.connect(address, object : MdsConnectionListener {
             override fun onConnect(p0: String?) {
-                Log.d(TAG, "device onConnect $p0")
+                Log.i(TAG, "device onConnect $p0")
             }
 
             override fun onConnectionComplete(macAddress: String?, serial: String?) {
-                Log.d(TAG, "device onConnectionComplete $macAddress $serial")
+                Log.i(TAG, "device onConnectionComplete $macAddress $serial")
                 if (serial != null) {
                     getInfo(serial)
                     subscribe(serial)
@@ -59,18 +79,17 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
             }
 
             override fun onError(p0: MdsException?) {
-                Log.d(TAG, "device onError $p0")
+                Log.e(TAG, "device onError $p0")
             }
 
             override fun onDisconnect(p0: String?) {
-                Log.d(TAG, "device onDisconnect $p0")
-                Log.d("btstatus", "device onDisconnect $p0")
+                Log.i(TAG, "device onDisconnect $p0")
                 _isConnected.postValue(false)
             }
         })
 
     fun changeMeasureType(measureType: MeasureType) {
-       _measureType.postValue(measureType)
+        _measureType.postValue(measureType)
     }
 
     fun toggleCombineAxis() {
@@ -79,10 +98,10 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
 
     private fun getInfo(serial: String) =
         movesenseConnector.getInfo(serial, object : MdsResponseListener {
-            override fun onSuccess(s: String) {
+            override fun onSuccess(s: String, header: MdsHeader) {
                 Log.i(
                     TAG,
-                    "Device $serial /info request succesful: $s"
+                    "Device $serial /info request successful: $s"
                 )
             }
 
@@ -120,15 +139,14 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                             dataResponse.body.arrayAcc
                         }
                     }
-                    Log.d(TAG, "selecteddata ${selectedData?.get(0)?.x}")
-                    Log.d(TAG, "graphData ${graphData.value?.get(0)}")
 
                     if (graphData.value != null) {
-                        _graphData.postValue(graphData.value?.plus(selectedData?.get(0)))
+                        _graphData.postValue(graphData.value?.plus(selectedData[0]))
                     } else {
-                        _graphData.postValue(listOf(selectedData?.get(0)))
+                        _graphData.postValue(listOf(selectedData[0]))
                     }
                     calculateAverage(selectedData)
+                    setCombinedData()
                 }
             }
 
@@ -158,5 +176,6 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
 
     companion object {
         private val TAG = MeasureViewModel::class.simpleName
+        private const val G = 9.81
     }
 }

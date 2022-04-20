@@ -6,48 +6,36 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
 
-object PermissionUtil {
-    fun checkBluetoothPermissions(
-        context: Context,
-        onCheckPermissions: (Array<String>) -> Unit
-    ): Boolean {
-        var btChecked = false
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                ) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.BLUETOOTH_SCAN
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                onCheckPermissions(
-                    arrayOf(
-                        Manifest.permission.BLUETOOTH_SCAN,
+class PermissionUtil {
+    companion object {
+        fun checkBluetoothPermissions(
+            context: Context,
+            onCheckPermissions: (Array<String>) -> Unit
+        ): Boolean {
+            var btChecked = false
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (ContextCompat.checkSelfPermission(
+                        context,
                         Manifest.permission.BLUETOOTH_CONNECT
+                    ) != PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.BLUETOOTH_SCAN
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    onCheckPermissions(
+                        arrayOf(
+                            Manifest.permission.BLUETOOTH_SCAN,
+                            Manifest.permission.BLUETOOTH_CONNECT
+                        )
                     )
-                )
+                } else {
+                    btChecked = true
+                }
             } else {
                 btChecked = true
             }
-        } else {
-            btChecked = true
-        }
-        var locChecked = false
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                onCheckPermissions(
-                    arrayOf(
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                    )
-                )
-            }
-        } else {
+            var locChecked = false
             if (ContextCompat.checkSelfPermission(
                     context,
                     Manifest.permission.ACCESS_COARSE_LOCATION
@@ -66,7 +54,7 @@ object PermissionUtil {
             } else {
                 locChecked = true
             }
+            return btChecked && locChecked
         }
-        return btChecked && locChecked
     }
 }

@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.FlipCameraAndroid
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,11 +32,9 @@ fun MeasureView(
     address: String?,
     measureViewModel: MeasureViewModel = viewModel()
 ) {
-    val graphData = measureViewModel.graphData.observeAsState()
     val selectedData = measureViewModel.dataAvg.observeAsState()
-    val combinedData = measureViewModel.combinedData.observeAsState()
     val measureType = measureViewModel.measureType.observeAsState()
-    val combineAxis = measureViewModel.combineAxis.observeAsState()
+    val graphData by measureViewModel.graphData.observeAsState()
 
     Scaffold(
         topBar = {
@@ -54,7 +53,7 @@ fun MeasureView(
                 contentColor = MaterialTheme.colorScheme.surface
             )
 
-            if (selectedData.value != null && graphData.value != null && measureViewModel.isConnected.value == true) {
+            if (selectedData.value != null && measureViewModel.isConnected.value == true) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Row(
                         modifier = Modifier
@@ -67,7 +66,10 @@ fun MeasureView(
                                 .padding(8.dp)
                                 .height(40.dp)
                                 .weight(3F),
-                            onClick = { measureViewModel.changeMeasureType(MeasureType.Acceleration) },
+                            onClick = {
+                               // measureViewModel.toggleClearData()
+                                measureViewModel.changeMeasureType(MeasureType.Acceleration)
+                            },
                             colors =
                             if (measureType.value == MeasureType.Acceleration) {
                                 selectedBtnColor
@@ -89,7 +91,10 @@ fun MeasureView(
                                 .padding(8.dp)
                                 .height(40.dp)
                                 .weight(2F),
-                            onClick = { measureViewModel.changeMeasureType(MeasureType.Gyro) },
+                            onClick = {
+                               // measureViewModel.toggleClearData()
+                                measureViewModel.changeMeasureType(MeasureType.Gyro)
+                            },
                             colors =
                             if (measureType.value == MeasureType.Gyro) {
                                 selectedBtnColor
@@ -118,7 +123,10 @@ fun MeasureView(
                             modifier = Modifier
                                 .padding(8.dp)
                                 .height(40.dp),
-                            onClick = { measureViewModel.changeMeasureType(MeasureType.Magnetic) },
+                            onClick = {
+                               // measureViewModel.toggleClearData()
+                                measureViewModel.changeMeasureType(MeasureType.Magnetic)
+                            },
                             colors =
                             if (measureType.value == MeasureType.Magnetic) {
                                 selectedBtnColor
@@ -139,17 +147,18 @@ fun MeasureView(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(13F)
+                            .weight(11F)
                     ) {
-                        MovesenseGraph(graphData.value!!, combineAxis.value!!,
-                            combinedData.value!!
+                        MovesenseGraph(
+                            measureViewModel = measureViewModel
                         )
                     }
                     OutlinedButton(onClick = {
                         measureViewModel.toggleCombineAxis()
+                       // measureViewModel.toggleClearData()
                     }
                     ) {
-                        Text("Combine axis")
+                        Text(stringResource(id = R.string.combine_axis))
                     }
                     Card(
                         modifier = Modifier
