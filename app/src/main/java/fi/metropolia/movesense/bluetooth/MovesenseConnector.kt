@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import com.movesense.mds.*
 import com.movesense.mds.Mds.URI_EVENTLISTENER
-import java.lang.Exception
 
 //some code is from https://bitbucket.org/movesense/movesense-mobile-lib/src/master/android/samples/SensorSample/app/src/main/java/com/movesense/samples/sensorsample/MainActivity.java
 

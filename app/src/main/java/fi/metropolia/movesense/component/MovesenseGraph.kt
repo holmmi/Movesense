@@ -11,7 +11,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import fi.metropolia.movesense.R
@@ -52,7 +51,6 @@ fun MovesenseGraph(
             data.setValueTextColor(R.color.md_theme_light_background)
             data.setValueTextSize(9f)
             return data
-
         } else {
             val data = LineData(xSet)
             data.setValueTextColor(R.color.md_theme_light_background)

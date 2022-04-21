@@ -20,6 +20,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.component.MovesenseGraph
+import fi.metropolia.movesense.component.ShowAnimation
 import fi.metropolia.movesense.extension.round
 import fi.metropolia.movesense.types.MeasureType
 
@@ -64,118 +65,124 @@ fun MeasureView(
                     }
                 }
             )
-        },
-        content = {
-            val selectedBtnColor = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.surface
-            )
+        }
+    ) {
+        val selectedBtnColor = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.surface
+        )
 
-            if (selectedData != null && measureViewModel.isConnected.value == true) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    Row(
+        if (selectedData != null && measureViewModel.isConnected.value == true) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier
+                        .padding(start = 8.dp, end = 8.dp)
+                        .fillMaxWidth()
+                        .weight(2F),
+                ) {
+                    OutlinedButton(
                         modifier = Modifier
-                            .padding(start = 8.dp, end = 8.dp)
-                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .height(40.dp)
+                            .weight(3F),
+                        onClick = {
+                            measureViewModel.toggleClearData()
+                            measureViewModel.changeMeasureType(MeasureType.Acceleration)
+                        },
+                        colors =
+                        if (measureType == MeasureType.Acceleration) {
+                            selectedBtnColor
+                        } else {
+                            ButtonDefaults.outlinedButtonColors()
+                        }
+                    ) {
+                        if (measureType == MeasureType.Acceleration) {
+                            Icon(
+                                modifier = Modifier.padding(end = 8.dp),
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null
+                            )
+                        }
+                        Text(text = stringResource(id = R.string.acc))
+                    }
+                    OutlinedButton(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .height(40.dp)
                             .weight(2F),
+                        onClick = {
+                            measureViewModel.toggleClearData()
+                            measureViewModel.changeMeasureType(MeasureType.Gyro)
+                        },
+                        colors =
+                        if (measureType == MeasureType.Gyro) {
+                            selectedBtnColor
+                        } else {
+                            ButtonDefaults.outlinedButtonColors()
+                        }
                     ) {
-                        OutlinedButton(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .height(40.dp)
-                                .weight(3F),
-                            onClick = {
-                                measureViewModel.toggleClearData()
-                                measureViewModel.changeMeasureType(MeasureType.Acceleration)
-                            },
-                            colors =
-                            if (measureType == MeasureType.Acceleration) {
-                                selectedBtnColor
-                            } else {
-                                ButtonDefaults.outlinedButtonColors()
-                            }
-                        ) {
-                            if (measureType == MeasureType.Acceleration) {
-                                Icon(
-                                    modifier = Modifier.padding(end = 8.dp),
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = null
-                                )
-                            }
-                            Text(text = stringResource(id = R.string.acc))
+                        if (measureType == MeasureType.Gyro) {
+                            Icon(
+                                modifier = Modifier.padding(end = 8.dp),
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null
+                            )
                         }
-                        OutlinedButton(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .height(40.dp)
-                                .weight(2F),
-                            onClick = {
-                                measureViewModel.toggleClearData()
-                                measureViewModel.changeMeasureType(MeasureType.Gyro)
-                            },
-                            colors =
-                            if (measureType == MeasureType.Gyro) {
-                                selectedBtnColor
-                            } else {
-                                ButtonDefaults.outlinedButtonColors()
-                            }
-                        ) {
-                            if (measureType == MeasureType.Gyro) {
-                                Icon(
-                                    modifier = Modifier.padding(end = 8.dp),
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = null
-                                )
-                            }
-                            Text(text = stringResource(id = R.string.gyro))
-                        }
+                        Text(text = stringResource(id = R.string.gyro))
                     }
-                    Row(
+                }
+                Row(
+                    modifier = Modifier
+                        .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                        .fillMaxWidth()
+                        .weight(2F),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    OutlinedButton(
                         modifier = Modifier
-                            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                            .fillMaxWidth()
-                            .weight(2F),
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        OutlinedButton(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .height(40.dp),
-                            onClick = {
-                                measureViewModel.toggleClearData()
-                                measureViewModel.changeMeasureType(MeasureType.Magnetic)
-                            },
-                            colors =
-                            if (measureType == MeasureType.Magnetic) {
-                                selectedBtnColor
-                            } else {
-                                ButtonDefaults.outlinedButtonColors()
-                            }
-                        ) {
-                            if (measureType == MeasureType.Magnetic) {
-                                Icon(
-                                    modifier = Modifier.padding(end = 8.dp),
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = null
-                                )
-                            }
-                            Text(text = stringResource(id = R.string.magn))
+                            .padding(8.dp)
+                            .height(40.dp),
+                        onClick = {
+                            measureViewModel.toggleClearData()
+                            measureViewModel.changeMeasureType(MeasureType.Magnetic)
+                        },
+                        colors =
+                        if (measureType == MeasureType.Magnetic) {
+                            selectedBtnColor
+                        } else {
+                            ButtonDefaults.outlinedButtonColors()
                         }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(11F)
                     ) {
-                        MovesenseGraph(
-                            measureViewModel = measureViewModel
-                        )
+                        if (measureType == MeasureType.Magnetic) {
+                            Icon(
+                                modifier = Modifier.padding(end = 8.dp),
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null
+                            )
+                        }
+                        Text(text = stringResource(id = R.string.magn))
                     }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(9F)
+                ) {
+                    MovesenseGraph(
+                        measureViewModel = measureViewModel
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(2F),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
                     OutlinedButton(
                         onClick = {
                             measureViewModel.toggleClearData()
                             measureViewModel.toggleCombineAxis()
-                        }, modifier = Modifier.align(CenterHorizontally),
+                        },
                         colors =
                         if (measureViewModel.combineAxis.value == true) {
                             selectedBtnColor
@@ -192,51 +199,60 @@ fun MeasureView(
                         }
                         Text(stringResource(id = R.string.combine_axis))
                     }
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                            .weight(3F)
-                    ) {
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            Box(
+                    OutlinedButton(onClick = { measureViewModel.toggleClearData() }) {
+                        Text(stringResource(id = R.string.clear_graph))
+                    }
+                }
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .weight(3F)
+                ) {
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Box(
+                            modifier = Modifier
+                                .width(100.dp)
+                                .fillMaxHeight()
+                                .background(color = MaterialTheme.colorScheme.secondaryContainer),
+                        ) {
+                            Icon(
                                 modifier = Modifier
-                                    .width(100.dp)
-                                    .fillMaxHeight()
-                                    .background(color = MaterialTheme.colorScheme.secondaryContainer),
-                            ) {
-                                Icon(
-                                    modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .size(48.dp),
-                                    imageVector = when (measureType) {
-                                        MeasureType.Acceleration -> Icons.Outlined.DirectionsRun
-                                        MeasureType.Gyro -> Icons.Outlined.FlipCameraAndroid
-                                        MeasureType.Magnetic -> Icons.Outlined.Polymer
-                                        else -> {
-                                            Icons.Outlined.ErrorOutline
-                                        }
-                                    }, contentDescription = null
-                                )
-                            }
-                            Text(
-                                text = measureType!!.name, modifier = Modifier
-                                    .padding(8.dp)
-                                    .align(
-                                        Alignment.CenterVertically
-                                    )
+                                    .align(Alignment.Center)
+                                    .size(48.dp),
+                                imageVector = when (measureType) {
+                                    MeasureType.Acceleration -> Icons.Outlined.DirectionsRun
+                                    MeasureType.Gyro -> Icons.Outlined.FlipCameraAndroid
+                                    MeasureType.Magnetic -> Icons.Outlined.Polymer
+                                    else -> {
+                                        Icons.Outlined.ErrorOutline
+                                    }
+                                }, contentDescription = null
                             )
-                            Column(modifier = Modifier.padding(8.dp)) {
-                                Text("x: ${selectedData!!.x.round(3)}")
-                                Text("y: ${selectedData!!.y.round(3)}")
-                                Text("z: ${selectedData!!.z.round(3)}")
-                            }
+                        }
+                        Text(
+                            text = measureType!!.name, modifier = Modifier
+                                .padding(8.dp)
+                                .align(
+                                    Alignment.CenterVertically
+                                )
+                        )
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text("x: ${selectedData!!.x.round(3)}")
+                            Text("y: ${selectedData!!.y.round(3)}")
+                            Text("z: ${selectedData!!.z.round(3)}")
                         }
                     }
                 }
             }
+        } else {
+            Column() {
+                ShowAnimation(assetName = "animations/48244-dashboard-data-visualization.json")
+                Text(stringResource(id = R.string.loading), modifier = Modifier.padding(top = 300.dp))
+            }
         }
-    )
+    }
 
     if (address != null) {
         LaunchedEffect(Unit) {
