@@ -20,6 +20,8 @@ class MovesenseConnector(context: Context) {
         }
     }
 
+    fun disconnect(deviceAddress: String) = mds.disconnect(deviceAddress)
+
     fun getInfo(serial: String, callback: MdsResponseListener) {
         val uri = "$SCHEME_PREFIX$serial/Info"
         mds.get(uri, null, callback)

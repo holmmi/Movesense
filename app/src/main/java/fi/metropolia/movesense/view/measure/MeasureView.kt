@@ -38,8 +38,29 @@ fun MeasureView(
             SmallTopAppBar(
                 title = { Text(text = stringResource(id = R.string.measure)) },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
+                    IconButton(onClick = {
+                        if (address != null) {
+                            measureViewModel.disconnect(address)
+                        }
+                        navController.navigateUp()
+                    }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                    }
+                },
+                actions = {
+                    if (measureViewModel.isConnected.value == true) {
+                        IconButton(onClick = {
+                            if (address != null) {
+                                measureViewModel.disconnect(address)
+                            }
+                            navController.navigateUp()
+                        }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.BluetoothDisabled,
+                                contentDescription = null
+                            )
+                        }
                     }
                 }
             )
@@ -150,10 +171,25 @@ fun MeasureView(
                             measureViewModel = measureViewModel
                         )
                     }
-                    OutlinedButton(onClick = {
-                        measureViewModel.toggleClearData()
-                        measureViewModel.toggleCombineAxis()
-                    }, modifier = Modifier.align(CenterHorizontally)) {
+                    OutlinedButton(
+                        onClick = {
+                            measureViewModel.toggleClearData()
+                            measureViewModel.toggleCombineAxis()
+                        }, modifier = Modifier.align(CenterHorizontally),
+                        colors =
+                        if (measureViewModel.combineAxis.value == true) {
+                            selectedBtnColor
+                        } else {
+                            ButtonDefaults.outlinedButtonColors()
+                        }
+                    ) {
+                        if (measureViewModel.combineAxis.value == true) {
+                            Icon(
+                                modifier = Modifier.padding(end = 8.dp),
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null
+                            )
+                        }
                         Text(stringResource(id = R.string.combine_axis))
                     }
                     Card(

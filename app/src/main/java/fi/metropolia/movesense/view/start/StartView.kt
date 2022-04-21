@@ -1,6 +1,5 @@
 package fi.metropolia.movesense.view.start
 
-import android.app.Application
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
