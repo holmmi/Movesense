@@ -17,6 +17,7 @@ import kotlin.math.sqrt
 class MeasureViewModel(application: Application) : AndroidViewModel(application) {
     private val movesenseConnector = MovesenseConnector(application.applicationContext)
 
+    //statuses
     private val _isConnected = MutableLiveData(false)
     val isConnected: LiveData<Boolean>
         get() = _isConnected
@@ -24,6 +25,10 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     private val _combineAxis = MutableLiveData(false)
     val combineAxis: LiveData<Boolean>
         get() = _combineAxis
+
+    private val _clearData = MutableLiveData(false)
+    val clearData: LiveData<Boolean>
+        get() = _clearData
 
     //averages of 10 measurements
     private val _dataAvg = MutableLiveData<MovesenseDataResponse.Array?>(null)
@@ -34,9 +39,6 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     val measureType: LiveData<MeasureType>
         get() = _measureType
 
-    private val _clearData = MutableLiveData(false)
-    val clearData: LiveData<Boolean>
-        get() = _clearData
 
     // Graph data entries, x is also used for combined data
     private val _entriesX = MutableLiveData<List<Entry>>()
@@ -58,9 +60,9 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
             override fun onConnectionComplete(macAddress: String?, serial: String?) {
                 Log.i(TAG, "device onConnectionComplete $macAddress $serial")
                 if (serial != null) {
+                    _isConnected.postValue(true)
                     getInfo(serial)
                     subscribe(serial)
-                    _isConnected.postValue(true)
                 }
             }
 

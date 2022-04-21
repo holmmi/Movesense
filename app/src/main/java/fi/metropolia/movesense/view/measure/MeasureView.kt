@@ -7,18 +7,17 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.movesense.R
+import fi.metropolia.movesense.component.MovesenseGauge
 import fi.metropolia.movesense.component.MovesenseGraph
 import fi.metropolia.movesense.component.ShowAnimation
 import fi.metropolia.movesense.extension.round
@@ -33,6 +32,7 @@ fun MeasureView(
 ) {
     val selectedData by measureViewModel.dataAvg.observeAsState()
     val measureType by measureViewModel.measureType.observeAsState()
+    var gauge by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -49,19 +49,26 @@ fun MeasureView(
                     }
                 },
                 actions = {
-                    if (measureViewModel.isConnected.value == true) {
-                        IconButton(onClick = {
-                            if (address != null) {
-                                measureViewModel.disconnect(address)
-                            }
-                            navController.navigateUp()
+                    IconButton(onClick = {
+                        if (address != null) {
+                            measureViewModel.disconnect(address)
                         }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.BluetoothDisabled,
-                                contentDescription = null
-                            )
-                        }
+                        navController.navigateUp()
+                    }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.BluetoothDisabled,
+                            contentDescription = null
+                        )
+                    }
+                    IconButton(onClick = {
+                        gauge = !gauge
+                    }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Timer,
+                            contentDescription = null
+                        )
                     }
                 }
             )
@@ -168,9 +175,13 @@ fun MeasureView(
                         .fillMaxWidth()
                         .weight(9F)
                 ) {
-                    MovesenseGraph(
-                        measureViewModel = measureViewModel
-                    )
+                    if (!gauge) {
+                        MovesenseGraph(
+                            measureViewModel = measureViewModel
+                        )
+                    } else {
+                        MovesenseGauge(measureViewModel = measureViewModel)
+                    }
                 }
                 Row(
                     modifier = Modifier
@@ -247,9 +258,12 @@ fun MeasureView(
                 }
             }
         } else {
-            Column() {
+            Column {
                 ShowAnimation(assetName = "animations/48244-dashboard-data-visualization.json")
-                Text(stringResource(id = R.string.loading), modifier = Modifier.padding(top = 300.dp))
+                Text(
+                    stringResource(id = R.string.loading),
+                    modifier = Modifier.padding(top = 300.dp)
+                )
             }
         }
     }
