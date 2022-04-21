@@ -11,6 +11,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import fi.metropolia.movesense.R
@@ -61,28 +62,26 @@ fun MovesenseGraph(
     }
 
     fun updateData(chart: LineChart) {
-        val xSet = chart.data.getDataSetByIndex(0) as LineDataSet
-        xSet.values = entriesX
+        val xSet = chart.data?.getDataSetByIndex(0) as LineDataSet?
+        xSet?.values = entriesX
 
-        val ySet = chart.data.getDataSetByIndex(1) as LineDataSet
-        val zSet = chart.data.getDataSetByIndex(2) as LineDataSet
+        val ySet = chart.data?.getDataSetByIndex(1) as LineDataSet?
+        val zSet = chart.data?.getDataSetByIndex(2) as LineDataSet?
 
-        if (!measureViewModel.combineAxis.value!!) {
-            ySet.values = entriesY
-            zSet.values = entriesZ
-        } else {
-            if (measureViewModel.clearData.value == true) {
-                ySet.clear()
-                zSet.clear()
-            }
+        if (measureViewModel.clearData.value == true) {
+            xSet?.values = listOf()
+            ySet?.clear()
+            zSet?.clear()
+            chart.clear()
+            measureViewModel.toggleClearData()
         }
-        chart.data.notifyDataChanged()
+        if (!measureViewModel.combineAxis.value!!) {
+            ySet?.values = entriesY
+            zSet?.values = entriesZ
+        }
+        chart.data?.notifyDataChanged()
         chart.notifyDataSetChanged()
         chart.invalidate()
-    }
-
-    if (measureViewModel.clearData.value == true) {
-        measureViewModel.toggleClearData()
     }
 
     AndroidView(
