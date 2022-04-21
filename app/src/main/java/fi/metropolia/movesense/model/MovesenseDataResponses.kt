@@ -19,3 +19,16 @@ class MovesenseDataResponse(@field:SerializedName("Body") val body: Body) {
 
     class Headers(@field:SerializedName("Param0") val param0: Int)
 }
+
+data class MovesenseLogEntriesResponse(
+    val elements: List<MovesenseLogEntry>
+)
+
+data class MovesenseLogEntry(
+    @SerializedName("Id")
+    val id: Long,
+    @SerializedName("ModificationTimestamp")
+    val modificationTimestamp: String,
+    @SerializedName("Size")
+    val size: Long?
+)

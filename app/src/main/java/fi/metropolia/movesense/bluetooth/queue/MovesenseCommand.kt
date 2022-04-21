@@ -10,11 +10,12 @@ enum class MovesenseCommandMethod {
 data class MovesenseCommand(
     val commandMethod: MovesenseCommandMethod,
     val uri: String,
-    val data: String
+    val data: String?
 )
 
 data class MovesenseCommandResponse(
     val commandIndex: Int,
     val response: String?,
-    val failed: Boolean
+    val failed: Boolean,
+    val isLastCommand: Boolean
 )

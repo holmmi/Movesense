@@ -55,12 +55,11 @@ class MovesenseConnector(context: Context) {
 
     fun executeMovesenseCommands(movesenseCommands: List<MovesenseCommand>,
                                  movesenseCommandExecutorListener: MovesenseCommandExecutorListener) {
-        movesenseCommandExecutor.movesenseCommandExecutorListener = movesenseCommandExecutorListener
-        movesenseCommandExecutor.executeCommands(movesenseCommands)
+        movesenseCommandExecutor.executeCommands(movesenseCommands, movesenseCommandExecutorListener)
     }
 
     companion object {
-        private const val SCHEME_PREFIX = "suunto://";
+        private const val SCHEME_PREFIX = "suunto://"
         private const val URI_MEAS_IMU_9 = "/Meas/IMU9/13"
         private val TAG = MovesenseConnector::class.simpleName
     }
