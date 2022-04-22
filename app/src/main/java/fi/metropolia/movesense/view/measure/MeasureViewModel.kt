@@ -39,6 +39,10 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     val measureType: LiveData<MeasureType>
         get() = _measureType
 
+    private val _rpm = MutableLiveData(0)
+    val rpm: LiveData<Int>
+        get() = _rpm
+
 
     // Graph data entries, x is also used for combined data
     private val _entriesX = MutableLiveData<List<Entry>>()
@@ -137,6 +141,7 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                             dataResponse.body.arrayAcc
                         }
                     }
+                    calculateRPM(dataResponse.body.arrayGyro)
                     setGraphData(selectedData)
                     calculateAverage(selectedData)
                 }
@@ -216,6 +221,18 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
 
         }
         indexGraphData++
+    }
+
+    private var indexRPM: Int = 0
+    private var degrees: Double = 0.0
+    private fun calculateRPM(gyroData: Array<MovesenseDataResponse.Array>) {
+        indexRPM++
+        degrees += gyroData[0].z
+        if(indexRPM > 9 ) {
+            _rpm.postValue(((degrees/ indexRPM) / 6).toInt())
+            indexRPM = 0
+            degrees = 0.0
+        }
     }
 
     private var indexAvg: Int = 0
