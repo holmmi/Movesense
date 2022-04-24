@@ -21,14 +21,46 @@ class MovesenseDataResponse(@field:SerializedName("Body") val body: Body) {
 }
 
 data class MovesenseLogEntriesResponse(
-    val elements: List<MovesenseLogEntry>
-)
+    @SerializedName("Content")
+    val content: Content
+) {
+    data class Content(
+        val elements: List<LogEntry>
+    )
 
-data class MovesenseLogEntry(
-    @SerializedName("Id")
-    val id: Long,
-    @SerializedName("ModificationTimestamp")
-    val modificationTimestamp: String,
-    @SerializedName("Size")
-    val size: Long?
-)
+    data class LogEntry(
+        @SerializedName("Id")
+        val id: Long,
+        @SerializedName("ModificationTimestamp")
+        val modificationTimestamp: String,
+        @SerializedName("Size")
+        val size: Long?
+    )
+}
+
+data class MovesenseLogDataResponse(
+    @SerializedName("Meas")
+    val measurement: Type
+) {
+    data class Type(
+        @SerializedName("Acc")
+        val acceleration: List<Sensor>?,
+        @SerializedName("Gyro")
+        val gyroscope: List<Sensor>?,
+        @SerializedName("Magn")
+        val magnetometer: List<Sensor>?,
+        @SerializedName("Timestamp")
+        val timestamp: Long
+    )
+
+    data class Sensor(
+        @SerializedName(value = "ArrayAcc", alternate = ["ArrayGyro", "ArrayMagn"])
+        val values: List<Data>
+    )
+
+    data class Data(
+        val x: Double,
+        val y: Double,
+        val z: Double
+    )
+}

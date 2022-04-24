@@ -16,6 +16,5 @@ data class MovesenseCommand(
 data class MovesenseCommandResponse(
     val commandIndex: Int,
     val response: String?,
-    val failed: Boolean,
-    val isLastCommand: Boolean
+    val failed: Boolean
 )

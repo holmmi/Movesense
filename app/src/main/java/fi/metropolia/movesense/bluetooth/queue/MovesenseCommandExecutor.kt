@@ -9,6 +9,7 @@ import com.movesense.mds.MdsResponseListener
 class MovesenseCommandExecutor(private val mds: Mds) : MdsResponseListener {
     private var movesenseCommandExecutorListener: MovesenseCommandExecutorListener? = null
 
+    @Volatile
     private var movesenseCommands: List<MovesenseCommand>? = null
     private var commandIndex = 0
 
@@ -18,8 +19,7 @@ class MovesenseCommandExecutor(private val mds: Mds) : MdsResponseListener {
             MovesenseCommandResponse(
                 commandIndex,
                 data,
-                false,
-                commandIndex == movesenseCommands?.size
+                false
             )
         )
         executeNextCommand()
@@ -31,8 +31,7 @@ class MovesenseCommandExecutor(private val mds: Mds) : MdsResponseListener {
             MovesenseCommandResponse(
                 commandIndex,
                 null,
-                true,
-                commandIndex == movesenseCommands?.size
+                true
             )
         )
         executeNextCommand()
@@ -42,33 +41,47 @@ class MovesenseCommandExecutor(private val mds: Mds) : MdsResponseListener {
         commands: List<MovesenseCommand>,
         commandExecutorListener: MovesenseCommandExecutorListener
     ) {
-        movesenseCommandExecutorListener = commandExecutorListener
         if (movesenseCommands == null) {
+            movesenseCommandExecutorListener = commandExecutorListener
             movesenseCommands = commands
             executeNextCommand()
         }
     }
 
-    private fun executeNextCommand() {
-        movesenseCommands?.let {
-            if (commandIndex == it.size) {
-                movesenseCommands = null
-                commandIndex = 0
-                return
-            }
-            val command = it[commandIndex]
-            when (command.commandMethod) {
-                MovesenseCommandMethod.DELETE ->
-                    mds.delete(command.uri, command.data, this)
-                MovesenseCommandMethod.GET ->
-                    mds.get(command.uri, command.data, this)
-                MovesenseCommandMethod.POST ->
-                    mds.post(command.uri, command.data, this)
-                MovesenseCommandMethod.PUT ->
-                    mds.put(command.uri, command.data, this)
-            }
-            commandIndex ++
+    fun addCommands(newCommands: List<MovesenseCommand>) {
+        synchronized(this) {
+            movesenseCommands = movesenseCommands?.plus(newCommands)
         }
+    }
+
+    private fun executeNextCommand() {
+        synchronized(this) {
+            movesenseCommands?.let {
+                if (commandIndex == it.size) {
+                    movesenseCommandExecutorListener?.onEachCommandCompleted()
+                    resetCommandExecutor()
+                    return
+                }
+                val command = it[commandIndex]
+                when (command.commandMethod) {
+                    MovesenseCommandMethod.DELETE ->
+                        mds.delete(command.uri, command.data, this)
+                    MovesenseCommandMethod.GET ->
+                        mds.get(command.uri, command.data, this)
+                    MovesenseCommandMethod.POST ->
+                        mds.post(command.uri, command.data, this)
+                    MovesenseCommandMethod.PUT ->
+                        mds.put(command.uri, command.data, this)
+                }
+                commandIndex ++
+            }
+        }
+    }
+
+    private fun resetCommandExecutor() {
+        movesenseCommands = null
+        commandIndex = 0
+        movesenseCommandExecutorListener = null
     }
 
     companion object {

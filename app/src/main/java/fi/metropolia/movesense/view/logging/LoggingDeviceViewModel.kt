@@ -1,10 +1,12 @@
 package fi.metropolia.movesense.view.logging
 
 import android.app.Application
+import android.icu.util.Measure
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.movesense.mds.MdsConnectionListener
 import com.movesense.mds.MdsException
@@ -13,13 +15,24 @@ import fi.metropolia.movesense.bluetooth.queue.MovesenseCommand
 import fi.metropolia.movesense.bluetooth.queue.MovesenseCommandExecutorListener
 import fi.metropolia.movesense.bluetooth.queue.MovesenseCommandMethod
 import fi.metropolia.movesense.bluetooth.queue.MovesenseCommandResponse
+import fi.metropolia.movesense.database.MeasurementAccelerometer
+import fi.metropolia.movesense.database.MeasurementGyroscope
+import fi.metropolia.movesense.database.MeasurementInformation
+import fi.metropolia.movesense.database.MeasurementMagnetometer
 import fi.metropolia.movesense.model.MovesenseDataLoggerConfig
+import fi.metropolia.movesense.model.MovesenseLogDataResponse
+import fi.metropolia.movesense.model.MovesenseLogEntriesResponse
+import fi.metropolia.movesense.repository.MeasurementRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class LoggingDeviceViewModel(application: Application) : AndroidViewModel(application) {
     private val movesenseConnector = MovesenseConnector(application.applicationContext)
     private var deviceSerial: String? = null
 
     private val gson = Gson()
+
+    private val measurementRepository = MeasurementRepository(application.applicationContext)
 
     private val _loggingStarted = MutableLiveData(false)
     val loggingStarted: LiveData<Boolean>
@@ -61,17 +74,80 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
                     OperationType.INITIAL_READ, OperationType.STOP_LOGGING ->
                         _loggingStarted.postValue(movesenseCommandResponse.response?.contains("3"))
                     OperationType.START_LOGGING -> {
-                        if (movesenseCommandResponse.isLastCommand) {
-                            _loggingStarted.postValue(movesenseCommandResponse.response?.contains("3"))
+                        if (movesenseCommandResponse.response != null) {
+                            _loggingStarted.postValue(movesenseCommandResponse.response.contains("3"))
                         }
                     }
-                    OperationType.RETRIEVE_LOGS -> {
-                        Log.d(TAG, "${movesenseCommandResponse.response}")
+                    OperationType.RETRIEVE_LOG_ENTRIES -> {
+                        val logEntries = gson.fromJson(movesenseCommandResponse.response, MovesenseLogEntriesResponse::class.java)
+                        val commands = logEntries.content.elements.map {
+                            MovesenseCommand(
+                                MovesenseCommandMethod.GET,
+                                "${SCHEME_PREFIX}MDS/Logbook/$deviceSerial/byId/${it.id}/Data",
+                                null
+                            )
+                        }
+                        addMovesenseCommands(commands, OperationType.RETRIEVE_LOG_DATA)
+                    }
+                    OperationType.RETRIEVE_LOG_DATA -> {
+                        val logData = gson.fromJson(movesenseCommandResponse.response, MovesenseLogDataResponse::class.java)
+                        viewModelScope.launch(Dispatchers.IO) {
+                            val informationId = measurementRepository.addMeasurementInformation(
+                                MeasurementInformation(date = System.currentTimeMillis())
+                            )
+                            // Insert accelerometer data
+                            logData.measurement.acceleration?.let { accelerationData ->
+                                accelerationData.forEach {
+                                    measurementRepository.addAccelerometerData(
+                                        it.values.map { value ->
+                                            MeasurementAccelerometer(
+                                                informationId = informationId,
+                                                x = value.x,
+                                                y = value.y,
+                                                z = value.z
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                            // Insert gyroscope data
+                            logData.measurement.gyroscope?.let { gyroscopeData ->
+                                gyroscopeData.forEach {
+                                    measurementRepository.addGyroscopeData(
+                                        it.values.map { value ->
+                                            MeasurementGyroscope(
+                                                informationId = informationId,
+                                                x = value.x,
+                                                y = value.y,
+                                                z = value.z
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                            // Insert magnetometer data
+                            logData.measurement.magnetometer?.let { magnetometerData ->
+                                magnetometerData.forEach {
+                                    measurementRepository.addMagnetometerData(
+                                        it.values.map { value ->
+                                            MeasurementMagnetometer(
+                                                informationId = informationId,
+                                                x = value.x,
+                                                y = value.y,
+                                                z = value.z
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
-            Log.d("TAG", "${movesenseCommandResponse.response} ${movesenseCommandResponse.isLastCommand}")
-            _operationsAllowed.postValue(movesenseCommandResponse.isLastCommand)
+        }
+
+        override fun onEachCommandCompleted() {
+            _operationsAllowed.postValue(true)
         }
     }
 
@@ -95,19 +171,14 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
     }
 
     fun startLogging() {
-        _operationsAllowed.value = false
-        operationType = OperationType.START_LOGGING
         val dataLoggerConfig =
             MovesenseDataLoggerConfig(
                 MovesenseDataLoggerConfig.Config(
                     MovesenseDataLoggerConfig.DataEntries(
-                        listOf(
-                            MovesenseDataLoggerConfig.DataEntry("/Meas/IMU9/13")
-                        )
+                        SENSOR_PATHS.map { MovesenseDataLoggerConfig.DataEntry("$it/${SAMPLE_RATES[0]}") }
                     )
                 )
             )
-        Log.d(TAG, "${gson.toJson(dataLoggerConfig)}")
         val commands = listOf(
             MovesenseCommand(
                 MovesenseCommandMethod.PUT,
@@ -125,13 +196,11 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
                 null
             )
         )
-        movesenseConnector.executeMovesenseCommands(commands, movesenseCommandExecutorListener)
+        executeMovesenseCommands(commands, OperationType.START_LOGGING)
     }
 
     fun stopLogging() {
-        _operationsAllowed.value = false
-        operationType = OperationType.STOP_LOGGING
-        movesenseConnector.executeMovesenseCommands(
+        executeMovesenseCommands(
             listOf(
                 MovesenseCommand(
                     MovesenseCommandMethod.PUT,
@@ -139,14 +208,12 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
                     "{\"newState\":2}"
                 )
             ),
-            movesenseCommandExecutorListener
+            OperationType.STOP_LOGGING
         )
     }
 
     fun retrieveLogs() {
-        _operationsAllowed.value = false
-        operationType = OperationType.RETRIEVE_LOGS
-        movesenseConnector.executeMovesenseCommands(
+        executeMovesenseCommands(
             listOf(
                 MovesenseCommand(
                     MovesenseCommandMethod.GET,
@@ -154,16 +221,29 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
                     null
                 )
             ),
-            movesenseCommandExecutorListener
+            OperationType.RETRIEVE_LOG_ENTRIES
         )
     }
 
+    private fun executeMovesenseCommands(commands: List<MovesenseCommand>, operation: OperationType) {
+        _operationsAllowed.value = false
+        operationType = operation
+        movesenseConnector.executeMovesenseCommands(commands, movesenseCommandExecutorListener)
+    }
+
+    private fun addMovesenseCommands(commands: List<MovesenseCommand>, operation: OperationType) {
+        operationType = operation
+        movesenseConnector.addMovesenseCommands(commands)
+    }
+
     private enum class OperationType {
-        DELETE_LOGS, INITIAL_READ, RETRIEVE_LOGS, START_LOGGING, STOP_LOGGING
+        DELETE_LOGS, INITIAL_READ, RETRIEVE_LOG_DATA, RETRIEVE_LOG_ENTRIES, START_LOGGING, STOP_LOGGING
     }
 
     companion object {
+        private val SAMPLE_RATES = arrayOf(13, 26, 52, 104, 208, 416, 833, 1666)
         private const val SCHEME_PREFIX = "suunto://"
+        private val SENSOR_PATHS = arrayOf("/Meas/Acc", "/Meas/Gyro", "/Meas/Magn")
         private val TAG = LoggingDeviceViewModel::class.simpleName
     }
 }

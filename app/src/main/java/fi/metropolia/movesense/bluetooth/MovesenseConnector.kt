@@ -58,6 +58,9 @@ class MovesenseConnector(context: Context) {
         movesenseCommandExecutor.executeCommands(movesenseCommands, movesenseCommandExecutorListener)
     }
 
+    fun addMovesenseCommands(newCommands: List<MovesenseCommand>) =
+        movesenseCommandExecutor.addCommands(newCommands)
+
     companion object {
         private const val SCHEME_PREFIX = "suunto://"
         private const val URI_MEAS_IMU_9 = "/Meas/IMU9/13"
