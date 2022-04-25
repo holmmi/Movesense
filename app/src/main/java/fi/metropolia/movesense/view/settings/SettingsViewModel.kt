@@ -18,8 +18,6 @@ import fi.metropolia.movesense.bluetooth.MovesenseScanner
 import fi.metropolia.movesense.model.AdvSettingsResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
@@ -48,7 +46,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val _advSettings = MutableLiveData<AdvSettingsResponse>(null)
     val advSettings: LiveData<AdvSettingsResponse>
         get() = _advSettings
-
 
     fun connect(address: String) =
         movesenseConnector.connect(address, object : MdsConnectionListener {
@@ -94,23 +91,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 )
             }
         })
-    }
-
-    fun changeAdvertisementSettings(interval: Int, timeout: Int) {
-        movesenseConnector.changeAdvertisementSettings(
-            interval,
-            timeout,
-            deviceSerial,
-            object : MdsResponseListener {
-                override fun onSuccess(data: String?, header: MdsHeader?) {
-                    Log.d(TAG, "changeAdvertisementSettings success")
-                }
-
-                override fun onError(e: MdsException?) {
-                    Log.d(TAG, "changeAdvertisementSettings error: ${e?.localizedMessage}")
-                }
-            }
-        )
     }
 
     fun startScan() {

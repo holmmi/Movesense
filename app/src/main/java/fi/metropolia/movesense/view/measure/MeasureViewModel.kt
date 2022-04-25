@@ -67,7 +67,6 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
             override fun onConnectionComplete(macAddress: String?, serial: String?) {
                 Log.i(TAG, "device onConnectionComplete $macAddress $serial")
                 if (serial != null) {
-                    turnAdvertisingOn(serial)
                     _isConnected.postValue(true)
                     getInfo(serial)
                     subscribe(serial)
@@ -85,17 +84,6 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
         })
 
     fun disconnect(deviceAddress: String) = movesenseConnector.disconnect(deviceAddress)
-
-    fun turnAdvertisingOn(serial: String) = movesenseConnector.turnAdvertisingOn(serial, object : MdsResponseListener {
-        override fun onSuccess(data: String?, header: MdsHeader?) {
-            Log.d(TAG, "turnAdvertisingOn onSuccess data: $data")
-        }
-
-        override fun onError(p0: MdsException?) {
-            TODO("Not yet implemented")
-        }
-
-    })
 
     fun changeMeasureType(measureType: MeasureType) {
         _measureType.postValue(measureType)
