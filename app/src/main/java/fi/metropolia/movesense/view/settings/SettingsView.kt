@@ -33,19 +33,7 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
-            if (!isConnected.value!!) {
-                OutlinedButton(
-                    onClick = {
-                        settingsViewModel.startScan()
-                    },
-                    enabled = !isSearching.value!!
-                ) {
-                    Text(
-                        modifier = Modifier.padding(8.dp),
-                        text = stringResource(id = R.string.scan)
-                    )
-                }
-            } else {
+            if (isConnected.value!!) {
                 OutlinedButton(
                     onClick = {
                         settingsViewModel.disconnect()
@@ -58,7 +46,6 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
                     )
                 }
             }
-
         },
         content = {
             if (!isConnected.value!! || isSearching.value!!) {
@@ -68,7 +55,8 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
                         settingsViewModel.stopScan()
                         settingsViewModel.connect(movesenseDevices.value!![it].macAddress)
                     },
-                    isSearching = isSearching.value ?: false
+                    isSearching = isSearching.value ?: false,
+                    onStartScan = { settingsViewModel.startScan() }
                 )
             } else {
                 val settings = advSettings.value?.content
