@@ -49,13 +49,13 @@ data class MovesenseLogDataResponse(
         val gyroscope: List<Sensor>?,
         @SerializedName("Magn")
         val magnetometer: List<Sensor>?,
-        @SerializedName("Timestamp")
-        val timestamp: Long
     )
 
     data class Sensor(
         @SerializedName(value = "ArrayAcc", alternate = ["ArrayGyro", "ArrayMagn"])
-        val values: List<Data>
+        val values: List<Data>,
+        @SerializedName("Timestamp")
+        val timestamp: Long
     )
 
     data class Data(

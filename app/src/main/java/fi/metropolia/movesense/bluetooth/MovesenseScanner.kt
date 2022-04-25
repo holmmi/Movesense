@@ -38,7 +38,7 @@ class MovesenseScanner(context: Context, private val scannerCallback: MovesenseC
         }
         leScanResults = mutableListOf()
         val scanFilter = ScanFilter.Builder()
-            //.setManufacturerData(SUUNTO_MANUFACTURER_ID, byteArrayOf())
+            .setManufacturerData(SUUNTO_MANUFACTURER_ID, byteArrayOf())
             .build()
         val scanSettings = ScanSettings.Builder()
             .build()

@@ -1,7 +1,6 @@
 package fi.metropolia.movesense.view.logging
 
 import android.app.Application
-import android.icu.util.Measure
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -44,12 +43,17 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
     val operationsAllowed: LiveData<Boolean>
         get() = _operationsAllowed
 
+    private val _deviceName = MutableLiveData<String?>(null)
+    val deviceName: LiveData<String?>
+        get() = _deviceName
+
     private val mdsConnectionListener = object : MdsConnectionListener {
         override fun onConnect(p0: String?) {
         }
 
         override fun onConnectionComplete(macAddress: String?, serial: String?) {
             deviceSerial = serial
+            _deviceName.postValue("Movesense $serial")
             val commands = listOf(
                 MovesenseCommand(
                     MovesenseCommandMethod.GET,
@@ -143,6 +147,8 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
                         }
                     }
                 }
+            } else {
+                Log.e(TAG, "There was an error while executing Movesense command.")
             }
         }
 
