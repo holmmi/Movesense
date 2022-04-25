@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.bluetooth.MovesenseDevice
@@ -48,18 +49,18 @@ fun MovesenseSearcher(
                     .height(125.dp)
                     .padding(16.dp)
             ) {
-                Row {
+                Row(modifier = Modifier.fillMaxSize()) {
                     Text(
                         text = stringResource(id = R.string.search_devices),
+                        textAlign = TextAlign.Center,
                         modifier = Modifier
-                            .fillMaxWidth(0.8f)
-                            .align(Alignment.CenterVertically)
                             .padding(8.dp)
+                            .weight(3.5f)
                     )
                     Box(
                         modifier = Modifier
-                            .width(300.dp)
-                            .height(125.dp)
+                            .fillMaxHeight()
+                            .weight(1f)
                             .background(color = MaterialTheme.colorScheme.secondaryContainer),
                     ) {
                         Icon(
@@ -82,14 +83,16 @@ fun MovesenseSearcher(
                     Row {
                         Text(
                             text = stringResource(id = R.string.devices_not_found),
+                            textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .align(CenterVertically)
+                                .weight(3.5f)
                                 .padding(8.dp)
                         )
                         Box(
                             modifier = Modifier
-                                .width(300.dp)
-                                .height(125.dp)
+                                .weight(1f)
+                                .fillMaxHeight()
                                 .background(color = MaterialTheme.colorScheme.secondaryContainer),
                         ) {
                             Icon(
@@ -110,6 +113,9 @@ fun MovesenseSearcher(
                 .fillMaxHeight()
                 .padding(bottom = 16.dp)
         ) {
+            if (isSearching) {
+                ShowAnimation(assetName = "animations/40376-bluetooth-scan.json")
+            }
             movesenseDevices?.let {
                 it.forEachIndexed { index, device ->
                     Card(
@@ -127,7 +133,7 @@ fun MovesenseSearcher(
                         Row(
                             Modifier
                                 .fillMaxSize(),
-                            verticalAlignment = Alignment.CenterVertically,
+                            verticalAlignment = CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Column(
@@ -165,9 +171,6 @@ fun MovesenseSearcher(
                         }
                     }
                 }
-            }
-            if (isSearching) {
-                ShowAnimation(assetName = "animations/40376-bluetooth-scan.json")
             }
         }
         Spacer(modifier = Modifier.weight(1f, false))
