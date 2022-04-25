@@ -31,7 +31,7 @@ fun LoggingDeviceView(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(text = deviceName ?: "Connecting...")
+                    Text(text = deviceName ?: stringResource(id = R.string.connecting))
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
