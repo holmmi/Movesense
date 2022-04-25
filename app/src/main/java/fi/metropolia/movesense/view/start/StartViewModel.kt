@@ -43,10 +43,9 @@ class StartViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun stopScan() = movesenseScanner.stopScan()
+    private fun stopScan() = movesenseScanner.stopScan()
 
     companion object {
-        private const val SCAN_TIMEOUT = 10000L
+        private const val SCAN_TIMEOUT = 20000L
     }
-
 }

@@ -2,11 +2,14 @@ package fi.metropolia.movesense.bluetooth
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
-import android.bluetooth.le.*
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
+import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
 import android.content.Context
 
 @SuppressLint("MissingPermission")
-class MovesenseScanner(context: Context, private val scannerCallback: MovesenseCallback) {
+class MovesenseScanner(val context: Context, private val scannerCallback: MovesenseCallback) {
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
@@ -50,7 +53,7 @@ class MovesenseScanner(context: Context, private val scannerCallback: MovesenseC
         leScanner.stopScan(leScanCallback)
     }
 
-    fun isBluetoothEnabled(): Boolean =
+    private fun isBluetoothEnabled(): Boolean =
         bluetoothAdapter != null && bluetoothAdapter.isEnabled
 
     companion object {
