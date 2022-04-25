@@ -26,7 +26,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.extension.round
-import fi.metropolia.movesense.types.MeasureType
+import fi.metropolia.movesense.type.MeasureType
 import fi.metropolia.movesense.view.measure.MeasureViewModel
 
 @ExperimentalMaterial3Api

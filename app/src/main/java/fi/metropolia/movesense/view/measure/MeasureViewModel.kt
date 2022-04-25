@@ -5,12 +5,15 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.Entry
 import com.google.gson.Gson
 import com.movesense.mds.*
 import fi.metropolia.movesense.bluetooth.MovesenseConnector
 import fi.metropolia.movesense.model.MovesenseDataResponse
-import fi.metropolia.movesense.types.MeasureType
+import fi.metropolia.movesense.type.MeasureType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -141,9 +144,11 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                             dataResponse.body.arrayAcc
                         }
                     }
-                    calculateRPM(dataResponse.body.arrayGyro)
-                    setGraphData(selectedData)
-                    calculateAverage(selectedData)
+                    viewModelScope.launch(Dispatchers.Default) {
+                        calculateRPM(dataResponse.body.arrayGyro)
+                        setGraphData(selectedData)
+                        calculateAverage(selectedData)
+                    }
                 }
             }
 
