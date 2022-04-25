@@ -2,6 +2,9 @@ package fi.metropolia.movesense.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -32,8 +35,8 @@ fun MovesenseSearcher(
     var searched by rememberSaveable { mutableStateOf(false) }
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(10.dp),
+            .padding(10.dp)
+            .scrollable(ScrollableState { 0f }, Orientation.Vertical),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
