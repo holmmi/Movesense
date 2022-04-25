@@ -48,15 +48,9 @@ fun LoggingStartView(
                             )
                         }
                     },
-                    isSearching = isScanning!!
+                    isSearching = isScanning!!,
+                    onStartScan = { loggingStartViewModel.startScan() }
                 )
-                Spacer(modifier = Modifier.weight(1.0f))
-                OutlinedButton(
-                    onClick = { loggingStartViewModel.startScan() },
-                    enabled = !isScanning!!
-                ) {
-                    Text(text = stringResource(id = R.string.scan))    
-                }
             }
         }
     )
