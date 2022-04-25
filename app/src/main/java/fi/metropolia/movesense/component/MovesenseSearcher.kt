@@ -32,13 +32,6 @@ fun MovesenseSearcher(
             .padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (isSearching) {
-            Text(
-                text =
-                stringResource(id = R.string.searching),
-                style = MaterialTheme.typography.labelSmall,
-            )
-        }
         if (movesenseDevices.isNullOrEmpty() && !isSearching) {
             Card(
                 Modifier
@@ -67,16 +60,17 @@ fun MovesenseSearcher(
                         )
                     }
                 }
-
             }
         }
-        movesenseDevices?.let {
-            Column(
-                Modifier
-                    .verticalScroll(rememberScrollState())
-                    .fillMaxHeight()
-                    .padding(bottom = 16.dp)
-            ) {
+        Column(
+            Modifier
+                .verticalScroll(rememberScrollState())
+                .fillMaxHeight()
+                .padding(bottom = 16.dp)
+        ) {
+
+            movesenseDevices?.let {
+
                 it.forEachIndexed { index, device ->
                     Card(
                         Modifier
@@ -131,6 +125,9 @@ fun MovesenseSearcher(
                         }
                     }
                 }
+            }
+            if (isSearching) {
+                ShowAnimation(assetName = "animations/40376-bluetooth-scan.json")
             }
         }
     }
