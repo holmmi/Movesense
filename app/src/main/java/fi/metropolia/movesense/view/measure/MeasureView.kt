@@ -1,7 +1,6 @@
 package fi.metropolia.movesense.view.measure
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.BluetoothDisabled
@@ -10,9 +9,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.movesense.R
@@ -79,14 +79,25 @@ fun MeasureView(
                 }
 
             } else {
-                Column {
-                    ShowAnimation(assetName = "animations/48244-dashboard-data-visualization.json")
-                    Text(
-                        stringResource(id = R.string.loading),
-                        modifier = Modifier.padding(top = 300.dp)
-                    )
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Row(modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()) {
+                        ShowAnimation(assetName = "animations/48244-dashboard-data-visualization.json")
+                    }
+                        Text(
+                            stringResource(id = R.string.loading),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                        )
+                    }
                 }
-            }
         }
     )
     if (address != null) {

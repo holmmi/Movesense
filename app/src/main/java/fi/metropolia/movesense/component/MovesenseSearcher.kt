@@ -2,14 +2,19 @@ package fi.metropolia.movesense.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -25,24 +30,30 @@ fun MovesenseSearcher(
     movesenseDevices: List<MovesenseDevice>?,
     onConnect: (Int) -> Unit,
     isSearching: Boolean,
+    onStartScan: () -> Unit
 ) {
+    var searched by rememberSaveable { mutableStateOf(false) }
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(10.dp),
+            .padding(8.dp)
+            .scrollable(ScrollableState { 0f }, Orientation.Vertical)
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        if (movesenseDevices.isNullOrEmpty() && !isSearching) {
+        if (!searched) {
             Card(
                 Modifier
                     .fillMaxWidth()
                     .height(125.dp)
+                    .padding(16.dp)
             ) {
                 Row {
                     Text(
-                        text = stringResource(id = R.string.devices_not_found),
+                        text = stringResource(id = R.string.search_devices),
                         modifier = Modifier
-                            .align(CenterVertically)
+                            .fillMaxWidth(0.8f)
+                            .align(Alignment.CenterVertically)
                             .padding(8.dp)
                     )
                     Box(
@@ -52,12 +63,43 @@ fun MovesenseSearcher(
                             .background(color = MaterialTheme.colorScheme.secondaryContainer),
                     ) {
                         Icon(
-                            Icons.Filled.ErrorOutline,
+                            Icons.Filled.Info,
                             null,
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .size(48.dp),
                         )
+                    }
+                }
+            }
+        } else {
+            if (movesenseDevices.isNullOrEmpty() && !isSearching) {
+                Card(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(125.dp)
+                ) {
+                    Row {
+                        Text(
+                            text = stringResource(id = R.string.devices_not_found),
+                            modifier = Modifier
+                                .align(CenterVertically)
+                                .padding(8.dp)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .width(300.dp)
+                                .height(125.dp)
+                                .background(color = MaterialTheme.colorScheme.secondaryContainer),
+                        ) {
+                            Icon(
+                                Icons.Filled.ErrorOutline,
+                                null,
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .size(48.dp),
+                            )
+                        }
                     }
                 }
             }
@@ -68,9 +110,7 @@ fun MovesenseSearcher(
                 .fillMaxHeight()
                 .padding(bottom = 16.dp)
         ) {
-
             movesenseDevices?.let {
-
                 it.forEachIndexed { index, device ->
                     Card(
                         Modifier
@@ -129,6 +169,20 @@ fun MovesenseSearcher(
             if (isSearching) {
                 ShowAnimation(assetName = "animations/40376-bluetooth-scan.json")
             }
+        }
+        Spacer(modifier = Modifier.weight(1f, false))
+        OutlinedButton(
+            modifier = Modifier.padding(8.dp),
+            onClick = {
+                onStartScan()
+                searched = true
+            },
+            enabled = !isSearching
+        ) {
+            Text(
+                modifier = Modifier.padding(8.dp),
+                text = stringResource(id = R.string.scan)
+            )
         }
     }
 }
