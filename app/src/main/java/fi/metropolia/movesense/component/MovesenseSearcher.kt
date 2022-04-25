@@ -35,8 +35,9 @@ fun MovesenseSearcher(
     var searched by rememberSaveable { mutableStateOf(false) }
     Column(
         modifier = Modifier
-            .padding(10.dp)
-            .scrollable(ScrollableState { 0f }, Orientation.Vertical),
+            .padding(8.dp)
+            .scrollable(ScrollableState { 0f }, Orientation.Vertical)
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -169,8 +170,9 @@ fun MovesenseSearcher(
                 ShowAnimation(assetName = "animations/40376-bluetooth-scan.json")
             }
         }
+        Spacer(modifier = Modifier.weight(1f, false))
         OutlinedButton(
-            modifier = Modifier.weight(1f, false),
+            modifier = Modifier.padding(8.dp),
             onClick = {
                 onStartScan()
                 searched = true
