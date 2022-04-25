@@ -47,6 +47,12 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
     val deviceName: LiveData<String?>
         get() = _deviceName
 
+    private val localSelectedMeasurementTypes = mutableListOf<Int>()
+
+    private val _selectedMeasurementTypes = MutableLiveData(listOf<Int>())
+    val selectedMeasurementTypes: LiveData<List<Int>>
+        get() = _selectedMeasurementTypes
+
     private val mdsConnectionListener = object : MdsConnectionListener {
         override fun onConnect(p0: String?) {
         }
@@ -181,7 +187,9 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
             MovesenseDataLoggerConfig(
                 MovesenseDataLoggerConfig.Config(
                     MovesenseDataLoggerConfig.DataEntries(
-                        SENSOR_PATHS.map { MovesenseDataLoggerConfig.DataEntry("$it/${SAMPLE_RATES[0]}") }
+                        SENSOR_PATHS
+                            .filterIndexed { index, _ -> localSelectedMeasurementTypes.contains(index) }
+                            .map { MovesenseDataLoggerConfig.DataEntry("$it/${SAMPLE_RATES[0]}") }
                     )
                 )
             )
@@ -229,6 +237,15 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
             ),
             OperationType.RETRIEVE_LOG_ENTRIES
         )
+    }
+
+    fun onMeasurementTypeToggle(selectedIndex: Int) {
+        if (localSelectedMeasurementTypes.contains(selectedIndex)) {
+            localSelectedMeasurementTypes.remove(selectedIndex)
+        } else {
+            localSelectedMeasurementTypes.add(selectedIndex)
+        }
+        _selectedMeasurementTypes.value = localSelectedMeasurementTypes.toList()
     }
 
     private fun executeMovesenseCommands(commands: List<MovesenseCommand>, operation: OperationType) {
