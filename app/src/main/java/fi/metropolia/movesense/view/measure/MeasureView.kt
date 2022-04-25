@@ -1,28 +1,24 @@
 package fi.metropolia.movesense.view.measure
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.outlined.Directions
-import androidx.compose.material.icons.outlined.DirectionsRun
-import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material.icons.outlined.FlipCameraAndroid
+import androidx.compose.material.icons.outlined.BluetoothDisabled
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.movesense.R
+import fi.metropolia.movesense.component.MovesenseGauge
 import fi.metropolia.movesense.component.MovesenseGraph
-import fi.metropolia.movesense.extension.round
-import fi.metropolia.movesense.types.MeasureType
+import fi.metropolia.movesense.component.ShowAnimation
 
 @ExperimentalMaterial3Api
 @Composable
@@ -31,172 +27,68 @@ fun MeasureView(
     address: String?,
     measureViewModel: MeasureViewModel = viewModel()
 ) {
-    val graphData = measureViewModel.graphData.observeAsState()
-    val selectedData = measureViewModel.dataAvg.observeAsState()
-    val combinedData = measureViewModel.combinedData.observeAsState()
-    val measureType = measureViewModel.measureType.observeAsState()
-    val combineAxis = measureViewModel.combineAxis.observeAsState()
+    var gauge by rememberSaveable { mutableStateOf(false) }
+    val isConnected by measureViewModel.isConnected.observeAsState()
+    val selectedData by measureViewModel.dataAvg.observeAsState()
 
     Scaffold(
         topBar = {
             SmallTopAppBar(
                 title = { Text(text = stringResource(id = R.string.measure)) },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
+                    IconButton(onClick = {
+                        if (address != null) {
+                            measureViewModel.disconnect(address)
+                        }
+                        navController.navigateUp()
+                    }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        if (address != null) {
+                            measureViewModel.disconnect(address)
+                        }
+                        navController.navigateUp()
+                    }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.BluetoothDisabled,
+                            contentDescription = null
+                        )
+                    }
+                    IconButton(onClick = {
+                        gauge = !gauge
+                    }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Timer,
+                            contentDescription = null
+                        )
                     }
                 }
             )
         },
         content = {
-            val selectedBtnColor = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.surface
-            )
+            if (isConnected == true && selectedData != null) {
+                if (gauge) {
+                    MovesenseGauge(measureViewModel = measureViewModel)
+                } else {
+                    MovesenseGraph(measureViewModel = measureViewModel)
+                }
 
-            if (selectedData.value != null && graphData.value != null && measureViewModel.isConnected.value == true) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    Row(
-                        modifier = Modifier
-                            .padding(start = 8.dp, end = 8.dp)
-                            .fillMaxWidth()
-                            .weight(2F),
-                    ) {
-                        OutlinedButton(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .height(40.dp)
-                                .weight(3F),
-                            onClick = { measureViewModel.changeMeasureType(MeasureType.Acceleration) },
-                            colors =
-                            if (measureType.value == MeasureType.Acceleration) {
-                                selectedBtnColor
-                            } else {
-                                ButtonDefaults.outlinedButtonColors()
-                            }
-                        ) {
-                            if (measureType.value == MeasureType.Acceleration) {
-                                Icon(
-                                    modifier = Modifier.padding(end = 8.dp),
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = null
-                                )
-                            }
-                            Text(text = stringResource(id = R.string.acc))
-                        }
-                        OutlinedButton(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .height(40.dp)
-                                .weight(2F),
-                            onClick = { measureViewModel.changeMeasureType(MeasureType.Gyro) },
-                            colors =
-                            if (measureType.value == MeasureType.Gyro) {
-                                selectedBtnColor
-                            } else {
-                                ButtonDefaults.outlinedButtonColors()
-                            }
-                        ) {
-                            if (measureType.value == MeasureType.Gyro) {
-                                Icon(
-                                    modifier = Modifier.padding(end = 8.dp),
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = null
-                                )
-                            }
-                            Text(text = stringResource(id = R.string.gyro))
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                            .fillMaxWidth()
-                            .weight(2F),
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        OutlinedButton(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .height(40.dp),
-                            onClick = { measureViewModel.changeMeasureType(MeasureType.Magnetic) },
-                            colors =
-                            if (measureType.value == MeasureType.Magnetic) {
-                                selectedBtnColor
-                            } else {
-                                ButtonDefaults.outlinedButtonColors()
-                            }
-                        ) {
-                            if (measureType.value == MeasureType.Magnetic) {
-                                Icon(
-                                    modifier = Modifier.padding(end = 8.dp),
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = null
-                                )
-                            }
-                            Text(text = stringResource(id = R.string.magn))
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(13F)
-                    ) {
-                        MovesenseGraph(graphData.value!!, combineAxis.value!!,
-                            combinedData.value!!
-                        )
-                    }
-                    OutlinedButton(onClick = {
-                        measureViewModel.toggleCombineAxis()
-                    }
-                    ) {
-                        Text("Combine axis")
-                    }
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                            .weight(3F)
-                    ) {
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            Box(
-                                modifier = Modifier
-                                    .width(100.dp)
-                                    .fillMaxHeight()
-                                    .background(color = MaterialTheme.colorScheme.secondaryContainer),
-                            ) {
-                                Icon(
-                                    modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .size(48.dp),
-                                    imageVector = when (measureType.value) {
-                                        MeasureType.Acceleration -> Icons.Outlined.DirectionsRun
-                                        MeasureType.Gyro -> Icons.Outlined.FlipCameraAndroid
-                                        MeasureType.Magnetic -> Icons.Outlined.Directions
-                                        else -> {
-                                            Icons.Outlined.ErrorOutline
-                                        }
-                                    }, contentDescription = null
-                                )
-                            }
-                            Text(
-                                text = measureType.value!!.name, modifier = Modifier
-                                    .padding(8.dp)
-                                    .align(
-                                        Alignment.CenterVertically
-                                    )
-                            )
-                            Column(modifier = Modifier.padding(8.dp)) {
-                                Text("x: ${selectedData.value!!.x.round(3)}")
-                                Text("y: ${selectedData.value!!.y.round(3)}")
-                                Text("z: ${selectedData.value!!.z.round(3)}")
-                            }
-                        }
-                    }
+            } else {
+                Column {
+                    ShowAnimation(assetName = "animations/48244-dashboard-data-visualization.json")
+                    Text(
+                        stringResource(id = R.string.loading),
+                        modifier = Modifier.padding(top = 300.dp)
+                    )
                 }
             }
         }
     )
-
     if (address != null) {
         LaunchedEffect(Unit) {
             measureViewModel.connect(address)

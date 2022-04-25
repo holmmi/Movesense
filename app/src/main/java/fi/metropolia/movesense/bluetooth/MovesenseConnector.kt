@@ -10,8 +10,6 @@ import android.util.Log
 import com.google.gson.Gson
 import com.movesense.mds.*
 import com.movesense.mds.Mds.URI_EVENTLISTENER
-import fi.metropolia.movesense.model.AdvSettingsResponse
-import org.json.JSONObject
 import java.lang.Exception
 
 //some code is from https://bitbucket.org/movesense/movesense-mobile-lib/src/master/android/samples/SensorSample/app/src/main/java/com/movesense/samples/sensorsample/MainActivity.java
@@ -28,16 +26,10 @@ class MovesenseConnector(context: Context) {
         }
     }
 
-    fun disconnect(deviceAddress: String) {
-        try {
-            mds.disconnect(deviceAddress)
-        } catch (e: Exception) {
-            Log.e(TAG, "connect exception ${e.localizedMessage}")
-        }
-    }
+    fun disconnect(deviceAddress: String) = mds.disconnect(deviceAddress)
 
-    fun getAdvertisementSettings(serial: String, callback: MdsResponseListener) {
-        val uri = "$SCHEME_PREFIX$serial/$URI_ADV_SETTINGS"
+    fun getInfo(serial: String, callback: MdsResponseListener) {
+        val uri = "$SCHEME_PREFIX$serial/Info"
         mds.get(uri, null, callback)
     }
 
