@@ -13,6 +13,8 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import fi.metropolia.movesense.view.history.HistoryView
+import fi.metropolia.movesense.view.logging.LoggingDeviceView
+import fi.metropolia.movesense.view.logging.LoggingStartView
 import fi.metropolia.movesense.view.measure.MeasureView
 import fi.metropolia.movesense.view.settings.SettingsView
 import fi.metropolia.movesense.view.start.StartView
@@ -46,6 +48,15 @@ fun Navigation() {
                     composable(
                         route = NavigationRoutes.SETTINGS
                     ) { SettingsView(navController) }
+                    composable(
+                        route = NavigationRoutes.LOGGING
+                    ) { LoggingStartView(navController) }
+                    composable(
+                        route = NavigationRoutes.LOGGING_VIEW,
+                        arguments = listOf(
+                            navArgument("macAddress") { type = NavType.StringType }
+                        )
+                    ) { LoggingDeviceView(navController, it.arguments?.getString("macAddress")) }
                 }
             }
         },
@@ -54,8 +65,10 @@ fun Navigation() {
 }
 
 object NavigationRoutes {
-    const val START = "start"
-    const val MEASURE = "start/measure/{address}"
     const val HISTORY = "history"
+    const val LOGGING = "logging"
+    const val LOGGING_VIEW = "logging/{macAddress}"
+    const val MEASURE = "start/measure/{address}"
     const val SETTINGS = "settings"
+    const val START = "start"
 }

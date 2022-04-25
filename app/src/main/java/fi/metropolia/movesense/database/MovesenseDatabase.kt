@@ -7,13 +7,22 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface MeasurementDao {
     @Insert
-    suspend fun addMeasurementInformation(vararg measurementInformation: MeasurementInformation)
+    suspend fun addMeasurementInformation(measurementInformation: MeasurementInformation): Long
 
     @Query("DELETE FROM measurement_information WHERE id = :id")
     suspend fun deleteMeasurementInformation(id: Long)
 
     @Query("SELECT * FROM measurement_information")
     fun getMeasurementInformation(): Flow<List<MeasurementInformation>>
+
+    @Insert
+    suspend fun addAccelerometerData(accelerometerData: List<MeasurementAccelerometer>)
+
+    @Insert
+    suspend fun addGyroscopeData(gyroscopeData: List<MeasurementGyroscope>)
+
+    @Insert
+    suspend fun addMagnetometerData(magnetometerData: List<MeasurementMagnetometer>)
 
     @Query("SELECT * FROM measurement_accelerometer WHERE information_id = :informationId")
     suspend fun getAccelerometerData(informationId: Long): List<MeasurementAccelerometer>

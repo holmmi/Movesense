@@ -8,7 +8,7 @@ data class MeasurementInformation(
     @PrimaryKey(autoGenerate = true)
     val id: Long? = null,
     val date: Long,
-    val description: String
+    val description: String? = null
 )
 
 @Entity(
