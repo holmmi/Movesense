@@ -34,6 +34,8 @@ fun LoggingDeviceView(
     var showStartLoggingDialog by rememberSaveable { mutableStateOf(false) }
     val selectedMeasurementTypes by loggingDeviceViewModel.selectedMeasurementTypes.observeAsState(listOf())
 
+    var selectedSampleRate by rememberSaveable { mutableStateOf(0) }
+
     val context = LocalContext.current
     val measurementTypes = context.resources.getStringArray(R.array.measurement_types)
 
@@ -60,7 +62,7 @@ fun LoggingDeviceView(
                         TextButton(
                             onClick = {
                                 showStartLoggingDialog = false
-                                loggingDeviceViewModel.startLogging()
+                                loggingDeviceViewModel.startLogging(selectedSampleRate)
                             },
                             enabled = selectedMeasurementTypes.isNotEmpty()
                         ) {
@@ -82,6 +84,10 @@ fun LoggingDeviceView(
                     },
                     text = {
                         LazyColumn {
+                            item {
+                                Divider()
+                            }
+
                             itemsIndexed(measurementTypes) { index, measurementType ->
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -107,6 +113,30 @@ fun LoggingDeviceView(
                                         modifier = Modifier.padding(end = 4.dp)
                                     )
                                     Text(text = measurementType)
+                                }
+                            }
+
+                            item {
+                                Divider()
+                            }
+
+                            itemsIndexed(LoggingDeviceViewModel.SAMPLE_RATES) { index, sampleRate ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 6.dp, bottom = 6.dp)
+                                        .selectable(
+                                            selected = index == selectedSampleRate,
+                                            onClick = { selectedSampleRate = index }
+                                        )
+                                ) {
+                                    RadioButton(
+                                        selected = index == selectedSampleRate,
+                                        onClick = { selectedSampleRate = index },
+                                        modifier = Modifier.padding(end = 4.dp)
+                                    )
+                                    Text(text = "$sampleRate")
                                 }
                             }
                         }

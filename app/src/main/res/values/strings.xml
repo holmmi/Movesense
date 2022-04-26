@@ -32,7 +32,7 @@
     <string name="retrieve_logs">Retrieve logs</string>
     <string name="delete_logs">Delete logs</string>
     <string name="connecting">Connecting…</string>
-    <string name="choose_what_to_log">Choose what to log</string>
+    <string name="choose_what_to_log">Choose measurement types and sample rate</string>
     <string-array name="measurement_types">
         <item>Acceleration</item>
         <item>Movement</item>
