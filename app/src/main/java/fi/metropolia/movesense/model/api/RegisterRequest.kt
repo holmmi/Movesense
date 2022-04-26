@@ -1,0 +1,16 @@
+package fi.metropolia.movesense.model.api
+
+import com.google.gson.annotations.SerializedName
+
+data class RegisterRequest(
+    @SerializedName("name")
+    val name: Int,
+    @SerializedName("username")
+    val username: String,
+    @SerializedName("password")
+    val password: String,
+    @SerializedName("passwordConfirmation")
+    val passwordConfirmation: String,
+    @SerializedName("organization_id")
+    val organizationId: Int
+)
