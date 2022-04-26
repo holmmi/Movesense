@@ -1,15 +1,19 @@
 package fi.metropolia.movesense.view.logging
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -27,6 +31,12 @@ fun LoggingDeviceView(
     val operationsAllowed by loggingDeviceViewModel.operationsAllowed.observeAsState(false)
     val deviceName by loggingDeviceViewModel.deviceName.observeAsState()
 
+    var showStartLoggingDialog by rememberSaveable { mutableStateOf(false) }
+    val selectedMeasurementTypes by loggingDeviceViewModel.selectedMeasurementTypes.observeAsState(listOf())
+
+    val context = LocalContext.current
+    val measurementTypes = context.resources.getStringArray(R.array.measurement_types)
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -41,6 +51,69 @@ fun LoggingDeviceView(
             )
         },
         content = {
+            if (showStartLoggingDialog) {
+                AlertDialog(
+                    onDismissRequest = {
+                        showStartLoggingDialog = false
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showStartLoggingDialog = false
+                                loggingDeviceViewModel.startLogging()
+                            },
+                            enabled = selectedMeasurementTypes.isNotEmpty()
+                        ) {
+                            Text(text = stringResource(id = R.string.start_logging))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showStartLoggingDialog = false }
+                        ) {
+                            Text(text = stringResource(id = R.string.cancel))
+                        }
+                    },
+                    icon = {
+                        Icon(imageVector = Icons.Filled.Info, contentDescription = null)
+                    },
+                    title = {
+                        Text(text = stringResource(id = R.string.choose_what_to_log))
+                    },
+                    text = {
+                        LazyColumn {
+                            itemsIndexed(measurementTypes) { index, measurementType ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 6.dp, bottom = 6.dp)
+                                        .selectable(
+                                            selected = selectedMeasurementTypes.contains(index),
+                                            onClick = {
+                                                loggingDeviceViewModel.onMeasurementTypeToggle(
+                                                    index
+                                                )
+                                            }
+                                        )
+                                ) {
+                                    Checkbox(
+                                        checked = selectedMeasurementTypes.contains(index),
+                                        onCheckedChange = {
+                                            loggingDeviceViewModel.onMeasurementTypeToggle(
+                                                index
+                                            )
+                                        },
+                                        modifier = Modifier.padding(end = 4.dp)
+                                    )
+                                    Text(text = measurementType)
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -53,7 +126,7 @@ fun LoggingDeviceView(
                         if (loggingStarted) {
                             loggingDeviceViewModel.stopLogging()
                         } else {
-                            loggingDeviceViewModel.startLogging()
+                            showStartLoggingDialog = true
                         }
                     },
                     modifier = Modifier

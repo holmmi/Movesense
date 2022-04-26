@@ -32,4 +32,10 @@
     <string name="retrieve_logs">Retrieve logs</string>
     <string name="delete_logs">Delete logs</string>
     <string name="connecting">Connecting…</string>
+    <string name="choose_what_to_log">Choose what to log</string>
+    <string-array name="measurement_types">
+        <item>Acceleration</item>
+        <item>Movement</item>
+        <item>Magnetic field</item>
+    </string-array>
 </resources>
