@@ -44,4 +44,7 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="organization">Organization</string>
+    <string name="name">Name</string>
+    <string name="password_conf">Password confirmation</string>
+    <string name="name_not_found">Name not found</string>
 </resources>

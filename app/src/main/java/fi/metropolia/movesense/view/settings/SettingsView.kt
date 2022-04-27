@@ -2,7 +2,6 @@ package fi.metropolia.movesense.view.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AppRegistration
 import androidx.compose.material.icons.outlined.Login
@@ -10,6 +9,7 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -22,7 +22,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.movesense.R
-import fi.metropolia.movesense.model.api.LoginRequest
+import fi.metropolia.movesense.navigation.NavigationRoutes
 
 
 @ExperimentalMaterial3Api
@@ -32,6 +32,7 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
     // var loginDetails by rememberSaveable { mutableStateOf<LoginRequest?>(null)}
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+    val userToken by settingsViewModel.userToken.observeAsState()
     Scaffold(
         topBar = {
             SmallTopAppBar(
@@ -43,14 +44,15 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
                 modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (showLoginDialog) {
+                if (showLoginDialog && userToken == null) {
                     Dialog(
                         onDismissRequest = { showLoginDialog = false },
                         content = {
                             Box(
                                 modifier = Modifier
                                     .background(MaterialTheme.colorScheme.background)
-                                    .fillMaxHeight(0.7f).fillMaxWidth(0.9f)
+                                    .fillMaxHeight(0.7f)
+                                    .fillMaxWidth(0.9f)
                             ) {
                                 Column(
                                     Modifier
@@ -74,7 +76,12 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
                                     Spacer(modifier = Modifier.weight(1f, false))
 
                                     Row(horizontalArrangement = Arrangement.End) {
-                                        TextButton(onClick = { /*TODO: Send user login details*/ }) {
+                                        TextButton(onClick = {
+                                            settingsViewModel.login(
+                                                username,
+                                                password
+                                            )
+                                        }) {
                                             Text(text = stringResource(id = R.string.login))
                                         }
                                         TextButton(onClick = { showLoginDialog = false }) {
@@ -99,7 +106,7 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
                     Text(text = stringResource(id = R.string.login))
                 }
                 OutlinedButton(
-                    onClick = { /*TODO: navigate to register page*/ },
+                    onClick = { navController.navigate(NavigationRoutes.REGISTER) },
                     modifier = Modifier
                         .padding(8.dp)
                         .width(150.dp)

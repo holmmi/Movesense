@@ -13,6 +13,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import retrofit2.await
+import retrofit2.awaitResponse
 
 class UserRepository(val context: Context) {
     private val userService = UserApi.service
@@ -22,15 +24,23 @@ class UserRepository(val context: Context) {
             preferences[TOKEN_KEY] ?: ""
         }
 
-    suspend fun saveUserToken(token: String) = context.dataStore.edit { preferences ->
-        preferences[TOKEN_KEY] = token
+    suspend fun saveUserToken(token: String?) = token?.let {
+        context.dataStore.edit { preferences ->
+            preferences[TOKEN_KEY] = token
+        }
     }
 
     suspend fun login(loginRequest: LoginRequest) =
-        withContext(Dispatchers.Default) { userService.loginUser(loginRequest) }
+        withContext(Dispatchers.IO) {
+            saveUserToken(
+                userService.loginUser(loginRequest)?.await()?.token
+            )
+        }
 
     suspend fun register(registerRequest: RegisterRequest) =
-        withContext(Dispatchers.Default) { userService.registerUser(registerRequest) }
+        withContext(Dispatchers.IO) { userService.registerUser(registerRequest).await() }
+
+    suspend fun getOrganizations() = withContext(Dispatchers.IO) { userService.getOrganizations().await() }
 
     companion object {
         val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "tokenStore")

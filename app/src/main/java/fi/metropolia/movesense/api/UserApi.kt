@@ -1,9 +1,6 @@
 package fi.metropolia.movesense.api
 
-import fi.metropolia.movesense.model.api.LoginRequest
-import fi.metropolia.movesense.model.api.LoginResponse
-import fi.metropolia.movesense.model.api.RegisterRequest
-import fi.metropolia.movesense.model.api.RegisterResponse
+import fi.metropolia.movesense.model.api.*
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -20,11 +17,14 @@ object UserApi {
     private val httpClient = OkHttpClient.Builder().addInterceptor(logging).build()
 
     interface Service {
-        @POST("login/")
+        @POST("account/login/")
         fun loginUser(@Body loginRequest: LoginRequest?): Call<LoginResponse?>?
 
-        @POST("register/")
+        @POST("account/register/")
         fun registerUser(@Body registerRequest: RegisterRequest?): Call<RegisterResponse>
+
+        @GET("organization/details/")
+        fun getOrganizations(): Call<OrganizationResponse>
 
        // @GET("details")
        // fun userDetails(@Body detailRequest: DetailRequest?): Call<DetailResponse>
