@@ -20,8 +20,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val registerResponse: LiveData<RegisterResponse>
         get() = _registerResponse
 
-    private var _organizationResponse = MutableLiveData<OrganizationResponse>()
-    val organizationResponse: LiveData<OrganizationResponse>
+    private var _organizationResponse = MutableLiveData<List<OrganizationResponse>>()
+    val organizationResponse: LiveData<List<OrganizationResponse>>
         get() = _organizationResponse
 
     fun login(username: String, password: String) {
@@ -59,7 +59,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun getOrganizations() {
         viewModelScope.launch(Dispatchers.IO) {
-            _organizationResponse.postValue(userRepository.getOrganizations())
+            _organizationResponse.postValue(userRepository.getOrganizations() as List<OrganizationResponse>)
         }
     }
 }

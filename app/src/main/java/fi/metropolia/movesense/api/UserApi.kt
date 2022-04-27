@@ -24,7 +24,7 @@ object UserApi {
         fun registerUser(@Body registerRequest: RegisterRequest?): Call<RegisterResponse>
 
         @GET("organization/details/")
-        fun getOrganizations(): Call<OrganizationResponse>
+        fun getOrganizations(): Call<List<OrganizationResponse>>
 
        // @GET("details")
        // fun userDetails(@Body detailRequest: DetailRequest?): Call<DetailResponse>

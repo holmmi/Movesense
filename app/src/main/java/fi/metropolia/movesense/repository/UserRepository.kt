@@ -1,6 +1,7 @@
 package fi.metropolia.movesense.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import retrofit2.await
 import retrofit2.awaitResponse
+import java.lang.Exception
 
 class UserRepository(val context: Context) {
     private val userService = UserApi.service
@@ -32,18 +34,32 @@ class UserRepository(val context: Context) {
 
     suspend fun login(loginRequest: LoginRequest) =
         withContext(Dispatchers.IO) {
-            saveUserToken(
-                userService.loginUser(loginRequest)?.await()?.token
-            )
+            try {
+                saveUserToken(
+                    userService.loginUser(loginRequest)?.await()?.token
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "login error: ${e.localizedMessage}")
+                null
+            }
         }
 
     suspend fun register(registerRequest: RegisterRequest) =
-        withContext(Dispatchers.IO) { userService.registerUser(registerRequest).await() }
+        withContext(Dispatchers.IO) {
+            try {
+                userService.registerUser(registerRequest).await()
+            } catch (e: Exception) {
+                Log.e(TAG, "register error: ${e.localizedMessage}")
+                null
+            }
+        }
 
-    suspend fun getOrganizations() = withContext(Dispatchers.IO) { userService.getOrganizations().await() }
+    suspend fun getOrganizations() =
+        withContext(Dispatchers.IO) { userService.getOrganizations().await() }
 
     companion object {
         val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "tokenStore")
         val TOKEN_KEY = stringPreferencesKey("user_token")
+        val TAG = UserRepository::class.simpleName
     }
 }

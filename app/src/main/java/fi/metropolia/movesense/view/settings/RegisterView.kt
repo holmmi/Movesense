@@ -1,9 +1,14 @@
 package fi.metropolia.movesense.view.settings
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Expand
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -26,6 +31,8 @@ fun RegisterView(navController: NavController, settingsViewModel: SettingsViewMo
     var passwordConf by rememberSaveable { mutableStateOf("") }
     var organization by rememberSaveable { mutableStateOf(0) }
     var expanded by rememberSaveable { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
 
     val organizations by settingsViewModel.organizationResponse.observeAsState()
     Scaffold(
@@ -71,23 +78,40 @@ fun RegisterView(navController: NavController, settingsViewModel: SettingsViewMo
                     placeholder = { Text(text = stringResource(id = R.string.password_conf)) }
                 )
                 if (organizations != null) {
-                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        organizations?.organizations?.forEach {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable(onClick = {
-                                        organization =
-                                            it.id!!
-                                        expanded = false
-                                    })
-                            ) {
-                                Text(text = it.name ?: stringResource(id = R.string.name_not_found))
+                    Column() {
+                        OutlinedTextField(
+                            value = organizations?.let { organizations!![organization] }?.name
+                                ?: stringResource(
+                                    id = R.string.name_not_found
+                                ),
+                            onValueChange = {},
+                            readOnly = true,
+                            singleLine = true,
+                            trailingIcon = {
+                                Icon(Icons.Default.ExpandMore, "")
+                            },
+                            placeholder = {
+                                Text(text = stringResource(id = R.string.organization))
+                            },
+                            interactionSource = interactionSource,
+                        )
+                        if (isPressed) expanded = true
+                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                            organizations?.forEach {
+                                DropdownMenuItem(text = {
+                                    Text(
+                                        text = it.name
+                                            ?: stringResource(id = R.string.name_not_found)
+                                    )
+                                }, onClick = {
+                                    organization =
+                                        it.id!! - 1
+                                    expanded = false
+                                })
                             }
                         }
                     }
                 }
-
                 OutlinedButton(onClick = {
                     settingsViewModel.register(
                         name,
