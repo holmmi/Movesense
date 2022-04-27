@@ -29,6 +29,7 @@ data class MeasurementAccelerometer(
     val id: Long? = null,
     @ColumnInfo(name = "information_id")
     val informationId: Long,
+    val timestamp: Long,
     val x: Double,
     val y: Double,
     val z: Double
@@ -52,6 +53,7 @@ data class MeasurementGyroscope(
     val id: Long? = null,
     @ColumnInfo(name = "information_id")
     val informationId: Long,
+    val timestamp: Long,
     val x: Double,
     val y: Double,
     val z: Double
@@ -75,6 +77,7 @@ data class MeasurementMagnetometer(
     val id: Long? = null,
     @ColumnInfo(name = "information_id")
     val informationId: Long,
+    val timestamp: Long,
     val x: Double,
     val y: Double,
     val z: Double
