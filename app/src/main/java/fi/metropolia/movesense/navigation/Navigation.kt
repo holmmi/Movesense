@@ -16,6 +16,7 @@ import fi.metropolia.movesense.view.history.HistoryView
 import fi.metropolia.movesense.view.logging.LoggingDeviceView
 import fi.metropolia.movesense.view.logging.LoggingStartView
 import fi.metropolia.movesense.view.measure.MeasureView
+import fi.metropolia.movesense.view.settings.DeviceSettings
 import fi.metropolia.movesense.view.settings.RegisterView
 import fi.metropolia.movesense.view.settings.SettingsView
 import fi.metropolia.movesense.view.start.StartView
@@ -61,6 +62,9 @@ fun Navigation() {
                     composable(
                         route = NavigationRoutes.REGISTER
                     ) { RegisterView(navController = navController) }
+                    composable(
+                        route = NavigationRoutes.DEVICE_SETTINGS
+                    ) { DeviceSettings(navController = navController) }
                 }
             }
         },
@@ -76,4 +80,5 @@ object NavigationRoutes {
     const val SETTINGS = "settings"
     const val START = "start"
     const val REGISTER = "settings/register"
+    const val DEVICE_SETTINGS = "settings/device"
 }

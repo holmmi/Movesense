@@ -123,7 +123,7 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
                     Text(text = stringResource(id = R.string.register))
                 }
                 OutlinedButton(
-                    onClick = { /*TODO: navigate to settings page*/ },
+                    onClick = { navController.navigate(NavigationRoutes.DEVICE_SETTINGS) },
                     modifier = Modifier
                         .padding(8.dp)
                         .width(150.dp)
