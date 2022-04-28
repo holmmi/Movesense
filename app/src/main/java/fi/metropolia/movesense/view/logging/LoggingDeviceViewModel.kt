@@ -112,6 +112,7 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
                                         it.values.map { value ->
                                             MeasurementAccelerometer(
                                                 informationId = informationId,
+                                                timestamp = it.timestamp,
                                                 x = value.x,
                                                 y = value.y,
                                                 z = value.z
@@ -127,6 +128,7 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
                                         it.values.map { value ->
                                             MeasurementGyroscope(
                                                 informationId = informationId,
+                                                timestamp = it.timestamp,
                                                 x = value.x,
                                                 y = value.y,
                                                 z = value.z
@@ -142,6 +144,7 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
                                         it.values.map { value ->
                                             MeasurementMagnetometer(
                                                 informationId = informationId,
+                                                timestamp = it.timestamp,
                                                 x = value.x,
                                                 y = value.y,
                                                 z = value.z
