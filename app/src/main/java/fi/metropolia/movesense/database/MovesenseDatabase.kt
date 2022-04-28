@@ -12,7 +12,7 @@ interface MeasurementDao {
     @Query("DELETE FROM measurement_information WHERE id = :id")
     suspend fun deleteMeasurementInformation(id: Long)
 
-    @Query("SELECT * FROM measurement_information")
+    @Query("SELECT * FROM measurement_information ORDER BY id DESC")
     fun getMeasurementInformation(): Flow<List<MeasurementInformation>>
 
     @Insert
