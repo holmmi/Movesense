@@ -4,10 +4,10 @@ import android.content.Context
 import android.util.Log
 import com.movesense.mds.*
 import com.movesense.mds.Mds.URI_EVENTLISTENER
+import java.lang.Exception
 import fi.metropolia.movesense.bluetooth.queue.MovesenseCommand
 import fi.metropolia.movesense.bluetooth.queue.MovesenseCommandExecutor
 import fi.metropolia.movesense.bluetooth.queue.MovesenseCommandExecutorListener
-import java.lang.Exception
 
 //some code is from https://bitbucket.org/movesense/movesense-mobile-lib/src/master/android/samples/SensorSample/app/src/main/java/com/movesense/samples/sensorsample/MainActivity.java
 
@@ -31,11 +31,17 @@ class MovesenseConnector(context: Context) {
         mds.get(uri, null, callback)
     }
 
+    fun getAdvertisementSettings(serial: String, callback: MdsResponseListener) {
+        val uri = "$SCHEME_PREFIX$serial/$URI_ADV_SETTINGS"
+        mds.get(uri, null, callback)
+    }
+
     fun subscribe(serial: String, callback: MdsNotificationListener) {
         val sb = StringBuilder()
         val strContract: String = sb
             .append("{\"Uri\": \"")
-            .append(serial).append(URI_MEAS_IMU_9)
+            .append(serial)
+            .append(URI_MEAS_IMU_9)
             .append("\"}")
             .toString()
         if (mdsSubscription != null) {
@@ -66,6 +72,7 @@ class MovesenseConnector(context: Context) {
     companion object {
         private const val SCHEME_PREFIX = "suunto://"
         private const val URI_MEAS_IMU_9 = "/Meas/IMU9/13"
+        private const val URI_ADV_SETTINGS = "Comm/Ble/Adv/Settings"
         private val TAG = MovesenseConnector::class.simpleName
     }
 }

@@ -77,7 +77,6 @@ fun MeasureView(
                 } else {
                     MovesenseGraph(measureViewModel = measureViewModel)
                 }
-
             } else {
                 Column(
                     verticalArrangement = Arrangement.Center,

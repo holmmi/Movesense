@@ -38,4 +38,15 @@
         <item>Movement</item>
         <item>Magnetic field</item>
     </string-array>
+    <!-- Account -->
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="organization">Organization</string>
+    <string name="name">Name</string>
+    <string name="password_conf">Password confirmation</string>
+    <string name="name_not_found">Name not found</string>
+    <string name="register_failed">Register failed with messages: </string>
+    <string name="register_successful">Register successful</string>
 </resources>
