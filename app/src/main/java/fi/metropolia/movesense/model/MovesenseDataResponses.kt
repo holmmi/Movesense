@@ -64,3 +64,12 @@ data class MovesenseLogDataResponse(
         val z: Double
     )
 }
+
+data class AdvSettingsResponse(@SerializedName("Content") val content: Content) {
+    class Content(
+        @SerializedName("AdvPacket") val advPacket: Array<Int>?,
+        @SerializedName("ScanRespPacket") val scanRespPacket: Int?,
+        @SerializedName("Interval") val interval: Int?,
+        @SerializedName("Timeout") val timeout: Int?,
+    )
+}

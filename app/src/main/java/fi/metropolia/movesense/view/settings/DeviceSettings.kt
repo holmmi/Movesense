@@ -61,9 +61,9 @@ fun DeviceSettings(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = "Advertising settings")
-                        Text(text = "interval ${settings?.interval}")
-                        Text(text = "timeout ${settings?.timeout}")
+                        Text(text = stringResource(id = R.string.advertising_settings))
+                        Text(text = stringResource(id = R.string.interval, settings?.interval ?: 0))
+                        Text(text = stringResource(id = R.string.timeout, settings?.timeout ?: 0))
                     }
                 }
             }
