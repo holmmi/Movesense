@@ -7,12 +7,9 @@ import androidx.compose.material.icons.outlined.AppRegistration
 import androidx.compose.material.icons.outlined.Login
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -29,10 +26,12 @@ import fi.metropolia.movesense.navigation.NavigationRoutes
 @Composable
 fun SettingsView(navController: NavController, settingsViewModel: SettingsViewModel = viewModel()) {
     var showLoginDialog by rememberSaveable { mutableStateOf(false) }
-    // var loginDetails by rememberSaveable { mutableStateOf<LoginRequest?>(null)}
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     val userToken by settingsViewModel.userToken.observeAsState()
+    val userDetails by settingsViewModel.detailsResponse.observeAsState()
+    val organizations by settingsViewModel.organizationResponse.observeAsState()
+
     Scaffold(
         topBar = {
             SmallTopAppBar(
@@ -44,7 +43,7 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
                 modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (showLoginDialog && userToken == null) {
+                if (showLoginDialog && userToken.isNullOrBlank()) {
                     Dialog(
                         onDismissRequest = { showLoginDialog = false },
                         content = {
@@ -93,6 +92,12 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
                         }
                     )
                 }
+                if (!userToken.isNullOrBlank() && userDetails != null)
+                    Card() {
+                        Text(text = userDetails!!.name!!)
+                        Text(text = userDetails!!.username!!)
+                        Text(text = organizations?.get(userDetails!!.organization_id!!.minus(1))!!.name!!)
+                    }
                 OutlinedButton(
                     onClick = { showLoginDialog = true },
                     modifier = Modifier
@@ -132,4 +137,8 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
             }
         }
     )
+    LaunchedEffect(Unit) {
+        settingsViewModel.getDetails()
+        settingsViewModel.getOrganizations()
+    }
 }

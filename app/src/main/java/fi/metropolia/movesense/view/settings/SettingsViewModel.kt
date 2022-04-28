@@ -24,14 +24,19 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val organizationResponse: LiveData<List<OrganizationResponse>>
         get() = _organizationResponse
 
+    private var _detailsResponse = MutableLiveData<DetailResponse?>()
+    val detailsResponse: LiveData<DetailResponse?>
+        get() = _detailsResponse
+
     fun login(username: String, password: String) {
         viewModelScope.launch(Dispatchers.IO) {
-                userRepository.login(
-                    LoginRequest(
-                        username,
-                        password
-                    )
+            userRepository.login(
+                LoginRequest(
+                    username,
+                    password
                 )
+            )
+            getDetails()
         }
     }
 
@@ -54,6 +59,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     )
                 )
             )
+        }
+    }
+
+    fun getDetails() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _detailsResponse.postValue(userRepository.getDetails())
         }
     }
 

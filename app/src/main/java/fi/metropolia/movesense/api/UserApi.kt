@@ -8,6 +8,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 object UserApi {
@@ -26,8 +27,8 @@ object UserApi {
         @GET("organization/details/")
         fun getOrganizations(): Call<List<OrganizationResponse>>
 
-       // @GET("details")
-       // fun userDetails(@Body detailRequest: DetailRequest?): Call<DetailResponse>
+       @GET("account/details/")
+       fun userDetails(@Header("authorization") token: String?): Call<DetailResponse>
     }
 
     private val retrofit = Retrofit.Builder()

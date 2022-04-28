@@ -10,10 +10,14 @@ import androidx.datastore.preferences.preferencesDataStore
 import fi.metropolia.movesense.api.UserApi
 import fi.metropolia.movesense.model.api.LoginRequest
 import fi.metropolia.movesense.model.api.RegisterRequest
+import fi.metropolia.movesense.model.api.RegisterResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 import retrofit2.await
 import retrofit2.awaitResponse
 import java.lang.Exception
@@ -46,13 +50,29 @@ class UserRepository(val context: Context) {
 
     suspend fun register(registerRequest: RegisterRequest) =
         withContext(Dispatchers.IO) {
+            lateinit var resp: Response<RegisterResponse>
             try {
-                userService.registerUser(registerRequest).await()
+                resp = userService.registerUser(registerRequest).awaitResponse()
+                if (resp.isSuccessful) {
+                    RegisterResponse()
+                } else {
+                    resp.body()
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "register error: ${e.localizedMessage}")
                 null
             }
         }
+
+    suspend fun getDetails() = withContext(Dispatchers.IO) {
+        try {
+            val token: String? = getUserToken.first()
+            userService.userDetails(token).await()
+        } catch (e: Exception) {
+            Log.e(TAG, "getDetails error: ${e.localizedMessage}")
+            null
+        }
+    }
 
     suspend fun getOrganizations() =
         withContext(Dispatchers.IO) { userService.getOrganizations().await() }

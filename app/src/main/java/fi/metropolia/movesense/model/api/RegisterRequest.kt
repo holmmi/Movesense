@@ -11,6 +11,6 @@ data class RegisterRequest(
     val password: String,
     @SerializedName("passwordConfirmation")
     val passwordConfirmation: String,
-    @SerializedName("organization_id")
+    @SerializedName("organizationId")
     val organizationId: Int
 )

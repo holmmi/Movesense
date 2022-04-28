@@ -47,4 +47,6 @@
     <string name="name">Name</string>
     <string name="password_conf">Password confirmation</string>
     <string name="name_not_found">Name not found</string>
+    <string name="register_failed">Register failed with messages: </string>
+    <string name="register_successful">Register successful</string>
 </resources>
