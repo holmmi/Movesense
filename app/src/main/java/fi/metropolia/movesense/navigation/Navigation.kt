@@ -12,6 +12,7 @@ import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import fi.metropolia.movesense.view.history.HistoryDetailsView
 import fi.metropolia.movesense.view.history.HistoryView
 import fi.metropolia.movesense.view.logging.LoggingDeviceView
 import fi.metropolia.movesense.view.logging.LoggingStartView
@@ -46,6 +47,12 @@ fun Navigation() {
                         route = NavigationRoutes.HISTORY
                     ) { HistoryView(navController) }
                     composable(
+                        route = NavigationRoutes.HISTORY_DETAILS,
+                        arguments = listOf(
+                            navArgument("measurementData") { type = NavType.StringType }
+                        )
+                    ) { HistoryDetailsView(navController, it.arguments?.getString("address")) }
+                    composable(
                         route = NavigationRoutes.SETTINGS
                     ) { SettingsView(navController) }
                     composable(
@@ -66,6 +73,7 @@ fun Navigation() {
 
 object NavigationRoutes {
     const val HISTORY = "history"
+    const val HISTORY_DETAILS = "history/details/{measurementData}"
     const val LOGGING = "logging"
     const val LOGGING_VIEW = "logging/{macAddress}"
     const val MEASURE = "start/measure/{address}"

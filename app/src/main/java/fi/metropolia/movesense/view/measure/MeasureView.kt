@@ -75,29 +75,38 @@ fun MeasureView(
                 if (gauge) {
                     MovesenseGauge(measureViewModel = measureViewModel)
                 } else {
-                    MovesenseGraph(measureViewModel = measureViewModel)
+                    MovesenseGraph(
+                        measureViewModel.entriesX.value,
+                        measureViewModel.entriesY.value,
+                        measureViewModel.entriesZ.value,
+                        measureViewModel.dataAvg.value,
+                        onSelectMeasureType = { measureViewModel.changeMeasureType(it) },
+                        onCombineAxis = { measureViewModel.toggleCombineAxis() },
+                        onClearData = { measureViewModel.toggleClearData() }
+                    )
                 }
-
             } else {
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    Row(modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                    ) {
                         ShowAnimation(assetName = "animations/48244-dashboard-data-visualization.json")
                     }
-                        Text(
-                            stringResource(id = R.string.loading),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
-                        )
-                    }
+                    Text(
+                        stringResource(id = R.string.loading),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                    )
                 }
+            }
         }
     )
     if (address != null) {

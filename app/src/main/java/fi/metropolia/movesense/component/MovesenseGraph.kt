@@ -12,7 +12,9 @@ import androidx.compose.material.icons.outlined.Polymer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,24 +24,28 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.extension.round
+import fi.metropolia.movesense.model.MovesenseDataResponse
 import fi.metropolia.movesense.type.MeasureType
-import fi.metropolia.movesense.view.measure.MeasureViewModel
 
 @ExperimentalMaterial3Api
 @Composable
 fun MovesenseGraph(
-    measureViewModel: MeasureViewModel
+    entriesX: List<Entry>?,
+    entriesY: List<Entry>?,
+    entriesZ: List<Entry>?,
+    selectedData: MovesenseDataResponse.Array?,
+    onSelectMeasureType: (MeasureType) -> Unit,
+    onCombineAxis: () -> Unit,
+    onClearData: () -> Unit
 ) {
-    val entriesX by measureViewModel.entriesX.observeAsState()
-    val entriesY by measureViewModel.entriesY.observeAsState()
-    val entriesZ by measureViewModel.entriesZ.observeAsState()
-
-    val selectedData by measureViewModel.dataAvg.observeAsState()
-    val measureType by measureViewModel.measureType.observeAsState()
+    var combineAxis by rememberSaveable { mutableStateOf(false) }
+    var clearData by rememberSaveable { mutableStateOf(false) }
+    var measureType by rememberSaveable { mutableStateOf(MeasureType.Acceleration) }
 
     fun setData(): LineData {
         val xSet = LineDataSet(entriesX, "x")
@@ -49,7 +55,7 @@ fun MovesenseGraph(
         xSet.setDrawFilled(false)
         xSet.lineWidth = 2f
 
-        if (!measureViewModel.combineAxis.value!!) {
+        if (!combineAxis) {
             val ySet = LineDataSet(entriesY, "y")
             ySet.axisDependency = YAxis.AxisDependency.LEFT
             ySet.setDrawCircles(false)
@@ -83,14 +89,14 @@ fun MovesenseGraph(
         val ySet = chart.data?.getDataSetByIndex(1) as LineDataSet?
         val zSet = chart.data?.getDataSetByIndex(2) as LineDataSet?
 
-        if (measureViewModel.clearData.value == true) {
+        if (clearData) {
             xSet?.values = listOf()
             ySet?.clear()
             zSet?.clear()
             chart.clear()
-            measureViewModel.toggleClearData()
+            clearData = false
         }
-        if (!measureViewModel.combineAxis.value!!) {
+        if (!combineAxis) {
             ySet?.values = entriesY
             zSet?.values = entriesZ
         }
@@ -117,8 +123,10 @@ fun MovesenseGraph(
                     .height(40.dp)
                     .weight(3F),
                 onClick = {
-                    measureViewModel.toggleClearData()
-                    measureViewModel.changeMeasureType(MeasureType.Acceleration)
+                    onClearData()
+                    clearData = true
+                    onSelectMeasureType(MeasureType.Acceleration)
+                    measureType = (MeasureType.Acceleration)
                 },
                 colors =
                 if (measureType == MeasureType.Acceleration) {
@@ -142,8 +150,10 @@ fun MovesenseGraph(
                     .height(40.dp)
                     .weight(2F),
                 onClick = {
-                    measureViewModel.toggleClearData()
-                    measureViewModel.changeMeasureType(MeasureType.Gyro)
+                    onClearData()
+                    clearData = true
+                    onSelectMeasureType(MeasureType.Gyro)
+                    measureType = MeasureType.Gyro
                 },
                 colors =
                 if (measureType == MeasureType.Gyro) {
@@ -174,8 +184,10 @@ fun MovesenseGraph(
                     .padding(8.dp)
                     .height(40.dp),
                 onClick = {
-                    measureViewModel.toggleClearData()
-                    measureViewModel.changeMeasureType(MeasureType.Magnetic)
+                    onClearData()
+                    clearData = true
+                    onSelectMeasureType(MeasureType.Magnetic)
+                    measureType = MeasureType.Magnetic
                 },
                 colors =
                 if (measureType == MeasureType.Magnetic) {
@@ -232,17 +244,19 @@ fun MovesenseGraph(
         ) {
             OutlinedButton(
                 onClick = {
-                    measureViewModel.toggleClearData()
-                    measureViewModel.toggleCombineAxis()
+                    onClearData()
+                    clearData = true
+                    onCombineAxis()
+                    combineAxis = !combineAxis
                 },
                 colors =
-                if (measureViewModel.combineAxis.value == true) {
+                if (combineAxis) {
                     selectedBtnColor
                 } else {
                     ButtonDefaults.outlinedButtonColors()
                 }
             ) {
-                if (measureViewModel.combineAxis.value == true) {
+                if (combineAxis) {
                     Icon(
                         modifier = Modifier.padding(end = 8.dp),
                         imageVector = Icons.Default.Check,
@@ -251,7 +265,10 @@ fun MovesenseGraph(
                 }
                 Text(stringResource(id = R.string.combine_axis))
             }
-            OutlinedButton(onClick = { measureViewModel.toggleClearData() }) {
+            OutlinedButton(onClick = {
+                onClearData()
+                clearData = true
+            }) {
                 Text(stringResource(id = R.string.clear_graph))
             }
         }
@@ -284,7 +301,7 @@ fun MovesenseGraph(
                     )
                 }
                 Text(
-                    text = measureType!!.name, modifier = Modifier
+                    text = measureType.name, modifier = Modifier
                         .padding(8.dp)
                         .align(
                             Alignment.CenterVertically
