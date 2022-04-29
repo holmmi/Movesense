@@ -22,6 +22,11 @@
     <string name="loading">Waiting for data… This can take up to 30 seconds.</string>
     <!-- History -->
     <string name="history">History</string>
+    <string name="no_description">No description</string>
+    <string name="choose_measurement">Choose logged measurement below</string>
+    <string name="no_logs_collected">
+        There are no logs collected. Collect logs from Movesense sensor in Logging.
+    </string>
     <!-- Settings -->
     <string name="settings">Settings</string>
     <!-- Logging -->
