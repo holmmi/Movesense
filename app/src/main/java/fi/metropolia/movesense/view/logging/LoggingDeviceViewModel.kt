@@ -112,6 +112,7 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
                                         it.values.map { value ->
                                             MeasurementAccelerometer(
                                                 informationId = informationId,
+                                                timestamp = it.timestamp,
                                                 x = value.x,
                                                 y = value.y,
                                                 z = value.z
@@ -127,6 +128,7 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
                                         it.values.map { value ->
                                             MeasurementGyroscope(
                                                 informationId = informationId,
+                                                timestamp = it.timestamp,
                                                 x = value.x,
                                                 y = value.y,
                                                 z = value.z
@@ -142,6 +144,7 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
                                         it.values.map { value ->
                                             MeasurementMagnetometer(
                                                 informationId = informationId,
+                                                timestamp = it.timestamp,
                                                 x = value.x,
                                                 y = value.y,
                                                 z = value.z
@@ -182,14 +185,14 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
         )
     }
 
-    fun startLogging() {
+    fun startLogging(selectedSampleRate: Int) {
         val dataLoggerConfig =
             MovesenseDataLoggerConfig(
                 MovesenseDataLoggerConfig.Config(
                     MovesenseDataLoggerConfig.DataEntries(
                         SENSOR_PATHS
                             .filterIndexed { index, _ -> localSelectedMeasurementTypes.contains(index) }
-                            .map { MovesenseDataLoggerConfig.DataEntry("$it/${SAMPLE_RATES[0]}") }
+                            .map { MovesenseDataLoggerConfig.DataEntry("$it/${SAMPLE_RATES[selectedSampleRate]}") }
                     )
                 )
             )
@@ -264,7 +267,7 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
     }
 
     companion object {
-        private val SAMPLE_RATES = arrayOf(13, 26, 52, 104, 208, 416, 833, 1666)
+        val SAMPLE_RATES = arrayOf(13, 26, 52, 104, 208, 416, 833, 1666)
         private const val SCHEME_PREFIX = "suunto://"
         private val SENSOR_PATHS = arrayOf("/Meas/Acc", "/Meas/Gyro", "/Meas/Magn")
         private val TAG = LoggingDeviceViewModel::class.simpleName

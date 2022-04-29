@@ -22,6 +22,11 @@
     <string name="loading">Waiting for data… This can take up to 30 seconds.</string>
     <!-- History -->
     <string name="history">History</string>
+    <string name="no_description">No description</string>
+    <string name="choose_measurement">Choose logged measurement below</string>
+    <string name="no_logs_collected">
+        There are no logs collected. Collect logs from Movesense sensor in Logging.
+    </string>
     <!-- Settings -->
     <string name="settings">Settings</string>
     <!-- Logging -->
@@ -32,7 +37,7 @@
     <string name="retrieve_logs">Retrieve logs</string>
     <string name="delete_logs">Delete logs</string>
     <string name="connecting">Connecting…</string>
-    <string name="choose_what_to_log">Choose what to log</string>
+    <string name="choose_what_to_log">Choose measurement types and sample rate</string>
     <string-array name="measurement_types">
         <item>Acceleration</item>
         <item>Movement</item>
