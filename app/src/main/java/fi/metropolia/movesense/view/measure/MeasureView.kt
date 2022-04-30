@@ -30,6 +30,10 @@ fun MeasureView(
     var gauge by rememberSaveable { mutableStateOf(false) }
     val isConnected by measureViewModel.isConnected.observeAsState()
     val selectedData by measureViewModel.dataAvg.observeAsState()
+    val entriesX by measureViewModel.entriesX.observeAsState()
+    val entriesY by measureViewModel.entriesY.observeAsState()
+    val entriesZ by measureViewModel.entriesZ.observeAsState()
+
 
     Scaffold(
         topBar = {
@@ -76,9 +80,9 @@ fun MeasureView(
                     MovesenseGauge(measureViewModel = measureViewModel)
                 } else {
                     MovesenseGraph(
-                        measureViewModel.entriesX.value,
-                        measureViewModel.entriesY.value,
-                        measureViewModel.entriesZ.value,
+                        entriesX,
+                        entriesY,
+                        entriesZ,
                         measureViewModel.dataAvg.value,
                         onSelectMeasureType = { measureViewModel.changeMeasureType(it) },
                         onCombineAxis = { measureViewModel.toggleCombineAxis() },

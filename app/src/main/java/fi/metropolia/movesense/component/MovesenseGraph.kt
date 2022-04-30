@@ -60,7 +60,7 @@ fun MovesenseGraph(
             ySet.axisDependency = YAxis.AxisDependency.LEFT
             ySet.setDrawCircles(false)
             ySet.setDrawFilled(false)
-            ySet.color = Color.Yellow.hashCode()
+            ySet.color = Color.Red.hashCode()
             ySet.lineWidth = 2f
 
             val zSet = LineDataSet(entriesZ, "z")
@@ -226,7 +226,8 @@ fun MovesenseGraph(
                 },
                 update = { chart ->
                     if (chart.data != null &&
-                        chart.data.dataSetCount > 0
+                        chart.data.dataSetCount > 0 &&
+                        (combineAxis && entriesX != null || !combineAxis && entriesX != null && entriesY != null && entriesZ != null)
                     ) {
                         updateData(chart)
                     } else {
@@ -265,53 +266,64 @@ fun MovesenseGraph(
                 }
                 Text(stringResource(id = R.string.combine_axis))
             }
-            OutlinedButton(onClick = {
-                onClearData()
-                clearData = true
-            }) {
-                Text(stringResource(id = R.string.clear_graph))
+            if (selectedData != null) {
+                OutlinedButton(onClick = {
+                    onClearData()
+                    clearData = true
+                }) {
+                    Text(stringResource(id = R.string.clear_graph))
+                }
             }
         }
+        if (selectedData != null) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .weight(3F)
+            ) {
+                SelectedDataCard(measureType, selectedData)
+            }
+        }
+    }
+}
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .weight(3F)
-        ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Box(
+@ExperimentalMaterial3Api
+@Composable
+fun SelectedDataCard(measureType: MeasureType, selectedData: MovesenseDataResponse.Array) {
+    Card {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Box(
+                modifier = Modifier
+                    .width(100.dp)
+                    .fillMaxHeight()
+                    .background(color = MaterialTheme.colorScheme.secondaryContainer),
+            ) {
+                Icon(
                     modifier = Modifier
-                        .width(100.dp)
-                        .fillMaxHeight()
-                        .background(color = MaterialTheme.colorScheme.secondaryContainer),
-                ) {
-                    Icon(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .size(48.dp),
-                        imageVector = when (measureType) {
-                            MeasureType.Acceleration -> Icons.Outlined.DirectionsRun
-                            MeasureType.Gyro -> Icons.Outlined.FlipCameraAndroid
-                            MeasureType.Magnetic -> Icons.Outlined.Polymer
-                            else -> {
-                                Icons.Outlined.ErrorOutline
-                            }
-                        }, contentDescription = null
-                    )
-                }
-                Text(
-                    text = measureType.name, modifier = Modifier
-                        .padding(8.dp)
-                        .align(
-                            Alignment.CenterVertically
-                        )
+                        .align(Alignment.Center)
+                        .size(48.dp),
+                    imageVector = when (measureType) {
+                        MeasureType.Acceleration -> Icons.Outlined.DirectionsRun
+                        MeasureType.Gyro -> Icons.Outlined.FlipCameraAndroid
+                        MeasureType.Magnetic -> Icons.Outlined.Polymer
+                        else -> {
+                            Icons.Outlined.ErrorOutline
+                        }
+                    }, contentDescription = null
                 )
-                Column(modifier = Modifier.padding(8.dp)) {
-                    Text("x: ${selectedData!!.x.round(3)}")
-                    Text("y: ${selectedData!!.y.round(3)}")
-                    Text("z: ${selectedData!!.z.round(3)}")
-                }
+            }
+            Text(
+                text = measureType.name, modifier = Modifier
+                    .padding(8.dp)
+                    .align(
+                        Alignment.CenterVertically
+                    )
+            )
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text("x: ${selectedData.x.round(3)}")
+                Text("y: ${selectedData.y.round(3)}")
+                Text("z: ${selectedData.z.round(3)}")
             }
         }
     }

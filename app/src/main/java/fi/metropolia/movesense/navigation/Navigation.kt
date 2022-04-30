@@ -51,7 +51,7 @@ fun Navigation() {
                         arguments = listOf(
                             navArgument("measurementData") { type = NavType.StringType }
                         )
-                    ) { HistoryDetailsView(navController, it.arguments?.getString("address")) }
+                    ) { HistoryDetailsView(navController, it.arguments?.getString("measurementData")) }
                     composable(
                         route = NavigationRoutes.SETTINGS
                     ) { SettingsView(navController) }
