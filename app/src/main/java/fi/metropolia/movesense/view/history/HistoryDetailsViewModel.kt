@@ -13,8 +13,6 @@ import fi.metropolia.movesense.database.MeasurementMagnetometer
 import fi.metropolia.movesense.model.MovesenseLogDataResponse
 import fi.metropolia.movesense.repository.MeasurementRepository
 import fi.metropolia.movesense.type.MeasureType
-import fi.metropolia.movesense.util.DateUtil
-import fi.metropolia.movesense.view.measure.MeasureViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.pow
@@ -31,18 +29,11 @@ class HistoryDetailsViewModel(application: Application) : AndroidViewModel(appli
     val measureType: LiveData<MeasureType>
         get() = _measureType
 
-    private var _combineAxis = MutableLiveData(false)
-    val combineAxis: LiveData<Boolean>
-        get() = _combineAxis
+    private var combineAxis = false
 
     fun toggleCombineAxis() {
-        _combineAxis.postValue(!combineAxis.value!!)
-    }
-
-    fun toggleClearData() {
-        _entriesX.postValue(listOf())
-        _entriesY.postValue(listOf())
-        _entriesZ.postValue(listOf())
+        combineAxis = !combineAxis
+        getEntries(combineAxis)
     }
 
     private var _entriesX = MutableLiveData<List<Entry>>()
@@ -59,7 +50,7 @@ class HistoryDetailsViewModel(application: Application) : AndroidViewModel(appli
 
     fun changeMeasureType(measureType: MeasureType) {
         _measureType.postValue(measureType)
-        getEntries()
+        getEntries(combineAxis)
     }
 
     fun getData(measurementInfo: MeasurementInformation) {
@@ -73,11 +64,11 @@ class HistoryDetailsViewModel(application: Application) : AndroidViewModel(appli
             magnData = measurementInfo.id?.let {
                 measurementRepository.getMagnetometerData(it)
             }
-            getEntries()
+            getEntries(combineAxis)
         }
     }
 
-    private fun getEntries() {
+    private fun getEntries(combineAxis: Boolean) {
         val data: List<MovesenseLogDataResponse.Data>? = when (measureType.value!!) {
             MeasureType.Acceleration -> accelerationData?.map { value ->
                 MovesenseLogDataResponse.Data(value.x, value.y, value.z)
@@ -89,7 +80,7 @@ class HistoryDetailsViewModel(application: Application) : AndroidViewModel(appli
                 MovesenseLogDataResponse.Data(value.x, value.y, value.z)
             }
         }
-        if (combineAxis.value == true) {
+        if (combineAxis) {
             _entriesX.postValue(
                 data?.mapIndexed { index, value ->
                     Entry(

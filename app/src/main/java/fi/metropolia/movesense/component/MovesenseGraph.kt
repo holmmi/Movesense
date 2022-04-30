@@ -41,7 +41,8 @@ fun MovesenseGraph(
     selectedData: MovesenseDataResponse.Array?,
     onSelectMeasureType: (MeasureType) -> Unit,
     onCombineAxis: () -> Unit,
-    onClearData: () -> Unit
+    onClearData: () -> Unit,
+    isLiveGraph: Boolean,
 ) {
     var combineAxis by rememberSaveable { mutableStateOf(false) }
     var clearData by rememberSaveable { mutableStateOf(false) }
@@ -266,7 +267,7 @@ fun MovesenseGraph(
                 }
                 Text(stringResource(id = R.string.combine_axis))
             }
-            if (selectedData != null) {
+            if (selectedData != null && isLiveGraph) {
                 OutlinedButton(onClick = {
                     onClearData()
                     clearData = true
@@ -275,7 +276,7 @@ fun MovesenseGraph(
                 }
             }
         }
-        if (selectedData != null) {
+        if (selectedData != null && isLiveGraph) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -1,6 +1,5 @@
 package fi.metropolia.movesense.view.history
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -26,9 +25,7 @@ fun HistoryDetailsView(
     measurementData: String?,
     historyDetailsViewModel: HistoryDetailsViewModel = viewModel(),
 ) {
-    val gson = Gson()
-    val measurementInfo = gson.fromJson(measurementData, MeasurementInformation::class.java)
-    Log.d("DBG",measurementData.toString())
+    val measurementInfo = Gson().fromJson(measurementData, MeasurementInformation::class.java)
     val entriesX by historyDetailsViewModel.entriesX.observeAsState()
     val entriesY by historyDetailsViewModel.entriesY.observeAsState()
     val entriesZ by historyDetailsViewModel.entriesZ.observeAsState()
@@ -55,8 +52,10 @@ fun HistoryDetailsView(
                         entriesZ = entriesZ,
                         selectedData = null,
                         onSelectMeasureType = { historyDetailsViewModel.changeMeasureType(it) },
-                        onClearData = { historyDetailsViewModel.toggleClearData() },
-                        onCombineAxis = { historyDetailsViewModel.toggleCombineAxis() })
+                        onClearData = {},
+                        onCombineAxis = { historyDetailsViewModel.toggleCombineAxis() },
+                        isLiveGraph = false
+                    )
                 }
             }
         }

@@ -34,7 +34,6 @@ fun MeasureView(
     val entriesY by measureViewModel.entriesY.observeAsState()
     val entriesZ by measureViewModel.entriesZ.observeAsState()
 
-
     Scaffold(
         topBar = {
             SmallTopAppBar(
@@ -86,7 +85,8 @@ fun MeasureView(
                         measureViewModel.dataAvg.value,
                         onSelectMeasureType = { measureViewModel.changeMeasureType(it) },
                         onCombineAxis = { measureViewModel.toggleCombineAxis() },
-                        onClearData = { measureViewModel.toggleClearData() }
+                        onClearData = { measureViewModel.toggleClearData() },
+                        isLiveGraph = true
                     )
                 }
             } else {
