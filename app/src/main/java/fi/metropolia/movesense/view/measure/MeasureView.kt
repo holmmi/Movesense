@@ -1,6 +1,9 @@
 package fi.metropolia.movesense.view.measure
 
+import android.widget.ToggleButton
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.BluetoothDisabled
@@ -11,8 +14,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.movesense.R
@@ -58,14 +63,22 @@ fun MeasureView(
                             contentDescription = null
                         )
                     }
-                    IconButton(onClick = {
-                        gauge = !gauge
-                    }
+                    IconToggleButton(
+                        checked = gauge,
+                        onCheckedChange = { gauge = !gauge },
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Timer,
-                            contentDescription = null
-                        )
+                        Box(modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(if (gauge) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.background),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Timer,
+                                tint = if (gauge) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
+                                contentDescription = null
+                            )
+                        }
                     }
                 }
             )
@@ -84,25 +97,32 @@ fun MeasureView(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    Row(modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                    ) {
                         ShowAnimation(assetName = "animations/48244-dashboard-data-visualization.json")
                     }
-                        Text(
-                            stringResource(id = R.string.loading),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
-                        )
-                    }
+                    Text(
+                        stringResource(id = R.string.loading),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                    )
                 }
+            }
         }
     )
     if (address != null) {
         LaunchedEffect(Unit) {
             measureViewModel.connect(address)
+        }
+        DisposableEffect(Unit) {
+            onDispose {
+                measureViewModel.disconnect(address)
+            }
         }
     }
 }

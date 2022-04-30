@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import com.ekn.gruzer.gaugelibrary.MultiGauge
 import com.ekn.gruzer.gaugelibrary.Range
+import fi.metropolia.movesense.type.MeasureType
 import fi.metropolia.movesense.view.measure.MeasureViewModel
 import kotlin.math.PI
 import kotlin.math.atan2
@@ -29,14 +30,21 @@ fun MovesenseGauge(measureViewModel: MeasureViewModel) {
     val entriesX by measureViewModel.entriesX.observeAsState()
     val entriesY by measureViewModel.entriesY.observeAsState()
     val entriesZ by measureViewModel.entriesZ.observeAsState()
+    measureViewModel.changeMeasureType(MeasureType.Acceleration)
+    if (measureViewModel.combineAxis.value == true) measureViewModel.toggleCombineAxis()
 
     fun calculateRotation() {
-        val x = entriesX?.last()?.y ?: 0.0F
-        val y = entriesY?.last()?.y ?: 0.0F
-        val z = entriesZ?.last()?.y ?: 0.0F
+        if (!entriesX.isNullOrEmpty() &&
+            !entriesY.isNullOrEmpty() &&
+            !entriesZ.isNullOrEmpty()
+        ) {
+            val x = entriesX?.last()?.y ?: 0.0F
+            val y = entriesY?.last()?.y ?: 0.0F
+            val z = entriesZ?.last()?.y ?: 0.0F
 
-        pitch = atan2(-x, sqrt(y * y + z * z)) * 180 / PI
-        roll = atan2(y, z) * 180 / PI
+            pitch = atan2(-x, sqrt(y * y + z * z)) * 180 / PI
+            roll = atan2(y, z) * 180 / PI
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {

@@ -32,7 +32,9 @@ fun LoggingDeviceView(
     val deviceName by loggingDeviceViewModel.deviceName.observeAsState()
 
     var showStartLoggingDialog by rememberSaveable { mutableStateOf(false) }
-    val selectedMeasurementTypes by loggingDeviceViewModel.selectedMeasurementTypes.observeAsState(listOf())
+    val selectedMeasurementTypes by loggingDeviceViewModel.selectedMeasurementTypes.observeAsState(
+        listOf()
+    )
 
     var selectedSampleRate by rememberSaveable { mutableStateOf(0) }
 
@@ -164,7 +166,7 @@ fun LoggingDeviceView(
                         .padding(8.dp),
                     enabled = operationsAllowed
                 ) {
-                    Text(text = stringResource(id = if (loggingStarted) R.string.stop_logging else R.string.start_logging ))
+                    Text(text = stringResource(id = if (loggingStarted) R.string.stop_logging else R.string.start_logging))
                 }
                 OutlinedButton(
                     onClick = {
@@ -191,10 +193,14 @@ fun LoggingDeviceView(
             }
         }
     )
-
-    LaunchedEffect(Unit) {
-        if (macAddress != null) {
+    if (macAddress != null) {
+        LaunchedEffect(Unit) {
             loggingDeviceViewModel.connect(macAddress)
+        }
+        DisposableEffect(Unit) {
+            onDispose {
+                loggingDeviceViewModel.disconnect(macAddress)
+            }
         }
     }
 }
