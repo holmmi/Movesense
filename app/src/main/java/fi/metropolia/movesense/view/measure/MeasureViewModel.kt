@@ -61,14 +61,11 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     fun connect(address: String) =
         movesenseConnector.connect(address, object : MdsConnectionListener {
             override fun onConnect(p0: String?) {
-                Log.i(TAG, "device onConnect $p0")
             }
 
             override fun onConnectionComplete(macAddress: String?, serial: String?) {
-                Log.i(TAG, "device onConnectionComplete $macAddress $serial")
                 if (serial != null) {
                     _isConnected.postValue(true)
-                    getInfo(serial)
                     subscribe(serial)
                 }
             }
@@ -78,7 +75,6 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
             }
 
             override fun onDisconnect(p0: String?) {
-                Log.i(TAG, "device onDisconnect $p0")
                 _isConnected.postValue(false)
             }
         })
@@ -100,23 +96,6 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
         _entriesY.postValue(listOf())
         _entriesZ.postValue(listOf())
     }
-
-    private fun getInfo(serial: String) =
-        movesenseConnector.getInfo(serial, object : MdsResponseListener {
-            override fun onSuccess(s: String, header: MdsHeader) {
-                Log.i(
-                    TAG,
-                    "Device $serial /info request successful: $s"
-                )
-            }
-
-            override fun onError(e: MdsException) {
-                Log.e(
-                    TAG,
-                    "Device $serial /info returned error: ${e.localizedMessage}"
-                )
-            }
-        })
 
     private fun subscribe(serial: String) =
         movesenseConnector.subscribe(serial, object : MdsNotificationListener {
@@ -233,8 +212,8 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     private fun calculateRPM(gyroData: Array<MovesenseDataResponse.Array>) {
         indexRPM++
         degrees += gyroData[0].z
-        if(indexRPM > 9 ) {
-            _rpm.postValue(((degrees/ indexRPM) / 6).toInt())
+        if (indexRPM > 9) {
+            _rpm.postValue(((degrees / indexRPM) / 6).toInt())
             indexRPM = 0
             degrees = 0.0
         }

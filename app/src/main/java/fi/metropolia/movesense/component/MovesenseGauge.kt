@@ -1,17 +1,26 @@
 package fi.metropolia.movesense.component
 
 import android.content.Context
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.ekn.gruzer.gaugelibrary.MultiGauge
 import com.ekn.gruzer.gaugelibrary.Range
@@ -20,6 +29,7 @@ import fi.metropolia.movesense.view.measure.MeasureViewModel
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.sqrt
+import fi.metropolia.movesense.R
 
 @Composable
 fun MovesenseGauge(measureViewModel: MeasureViewModel) {
@@ -51,7 +61,7 @@ fun MovesenseGauge(measureViewModel: MeasureViewModel) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.8f)
+                .fillMaxHeight(0.8f),
         ) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
@@ -74,6 +84,7 @@ fun MovesenseGauge(measureViewModel: MeasureViewModel) {
                     gauge.secondMaxValue = 180.0
                     gauge.addRange(range)
                     gauge.addSecondRange(range2)
+
                     calculateRotation()
                     gauge.value = pitch
                     gauge.secondValue = roll
@@ -87,8 +98,37 @@ fun MovesenseGauge(measureViewModel: MeasureViewModel) {
                 }
             )
         }
-        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-            Text("RPM: $rpm", style = MaterialTheme.typography.bodyLarge)
+        Column(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.contentColorFor(Color.Yellow))
+                .fillMaxWidth(0.5f)
+                .height(200.dp)
+                .clip(
+                    RoundedCornerShape(10.dp)
+                )
+                .align(CenterHorizontally),
+            horizontalAlignment = CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceAround
+        ) {
+            Text(
+                stringResource(id = R.string.pitch, pitch),
+                style = MaterialTheme.typography.titleLarge,
+                color = Color.Red,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                stringResource(id = R.string.roll, roll),
+                style = MaterialTheme.typography.titleLarge,
+                color = Color.Yellow,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                "RPM: $rpm",
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+            )
         }
+
+
     }
 }
