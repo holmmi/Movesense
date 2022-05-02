@@ -1,6 +1,8 @@
 package fi.metropolia.movesense.view.measure
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.BluetoothDisabled
@@ -11,8 +13,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.movesense.R
@@ -33,6 +37,10 @@ fun MeasureView(
     val entriesX by measureViewModel.entriesX.observeAsState()
     val entriesY by measureViewModel.entriesY.observeAsState()
     val entriesZ by measureViewModel.entriesZ.observeAsState()
+
+    val pitch by measureViewModel.pitch.observeAsState()
+    val roll by measureViewModel.roll.observeAsState()
+    val rpm by measureViewModel.rpm.observeAsState()
 
     Scaffold(
         topBar = {
@@ -61,14 +69,23 @@ fun MeasureView(
                             contentDescription = null
                         )
                     }
-                    IconButton(onClick = {
-                        gauge = !gauge
-                    }
+                    IconToggleButton(
+                        checked = gauge,
+                        onCheckedChange = { gauge = !gauge },
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Timer,
-                            contentDescription = null
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(if (gauge) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.background),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Timer,
+                                tint = if (gauge) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
+                                contentDescription = null
+                            )
+                        }
                     }
                 }
             )
@@ -76,13 +93,21 @@ fun MeasureView(
         content = {
             if (isConnected == true && selectedData != null) {
                 if (gauge) {
-                    MovesenseGauge(measureViewModel = measureViewModel)
+                    if (measureViewModel.combineAxis.value == true) {
+                        measureViewModel.toggleCombineAxis()
+                    }
+                    MovesenseGauge(
+                        pitch ?: 0.0,
+                        roll ?: 0.0,
+                        rpm ?: 0,
+                        onCalculateRotation = { measureViewModel.calculateRotation() },
+                    )
                 } else {
                     MovesenseGraph(
                         entriesX,
                         entriesY,
                         entriesZ,
-                        measureViewModel.dataAvg.value,
+                        selectedData,
                         onSelectMeasureType = { measureViewModel.changeMeasureType(it) },
                         onCombineAxis = { measureViewModel.toggleCombineAxis() },
                         onClearData = { measureViewModel.toggleClearData() },
@@ -113,9 +138,16 @@ fun MeasureView(
             }
         }
     )
-    if (address != null) {
-        LaunchedEffect(Unit) {
+    LaunchedEffect(Unit) {
+        if (address != null) {
             measureViewModel.connect(address)
+        }
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            if (address != null) {
+                measureViewModel.disconnect(address)
+            }
         }
     }
 }

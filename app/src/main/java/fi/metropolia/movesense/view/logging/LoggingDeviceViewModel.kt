@@ -170,6 +170,8 @@ class LoggingDeviceViewModel(application: Application) : AndroidViewModel(applic
         movesenseConnector.connect(deviceAddress, mdsConnectionListener)
     }
 
+    fun disconnect(deviceAddress: String) = movesenseConnector.disconnect(deviceAddress)
+
     fun deleteLogs() {
         _operationsAllowed.value = false
         operationType = OperationType.DELETE_LOGS
