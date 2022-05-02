@@ -13,19 +13,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.gson.Gson
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.component.MovesenseGraph
-import fi.metropolia.movesense.database.MeasurementInformation
 
 @ExperimentalMaterial3Api
 @Composable
 fun HistoryDetailsView(
     navController: NavController,
-    measurementData: String?,
+    measurementId: String?,
     historyDetailsViewModel: HistoryDetailsViewModel = viewModel(),
 ) {
-    val measurementInfo = Gson().fromJson(measurementData, MeasurementInformation::class.java)
     val entriesX by historyDetailsViewModel.entriesX.observeAsState()
     val entriesY by historyDetailsViewModel.entriesY.observeAsState()
     val entriesZ by historyDetailsViewModel.entriesZ.observeAsState()
@@ -45,7 +42,7 @@ fun HistoryDetailsView(
         },
         content = {
             Column(modifier = Modifier.fillMaxSize()) {
-                measurementInfo?.let {
+                measurementId?.let {
                     MovesenseGraph(
                         entriesX = entriesX,
                         entriesY = entriesY,
@@ -61,6 +58,8 @@ fun HistoryDetailsView(
         }
     )
     LaunchedEffect(Unit) {
-        historyDetailsViewModel.getData(measurementInfo)
+        if (measurementId != null) {
+            historyDetailsViewModel.getData(measurementId.toLong())
+        }
     }
 }

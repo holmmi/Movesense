@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.Entry
 import fi.metropolia.movesense.database.MeasurementAccelerometer
 import fi.metropolia.movesense.database.MeasurementGyroscope
-import fi.metropolia.movesense.database.MeasurementInformation
 import fi.metropolia.movesense.database.MeasurementMagnetometer
 import fi.metropolia.movesense.model.MovesenseLogDataResponse
 import fi.metropolia.movesense.repository.MeasurementRepository
@@ -53,17 +52,14 @@ class HistoryDetailsViewModel(application: Application) : AndroidViewModel(appli
         getEntries(combineAxis)
     }
 
-    fun getData(measurementInfo: MeasurementInformation) {
+    fun getData(measurementId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            accelerationData = measurementInfo.id?.let {
-                measurementRepository.getAccelerometerData(it)
-            }
-            gyroData = measurementInfo.id?.let {
-                measurementRepository.getGyroscopeData(it)
-            }
-            magnData = measurementInfo.id?.let {
-                measurementRepository.getMagnetometerData(it)
-            }
+            accelerationData =
+                measurementRepository.getAccelerometerData(measurementId)
+            gyroData =
+                measurementRepository.getGyroscopeData(measurementId)
+            magnData =
+                measurementRepository.getMagnetometerData(measurementId)
             getEntries(combineAxis)
         }
     }

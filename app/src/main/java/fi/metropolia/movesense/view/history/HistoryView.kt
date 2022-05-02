@@ -1,6 +1,5 @@
 package fi.metropolia.movesense.view.history
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,7 +14,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.gson.Gson
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.component.ShowAnimation
 import fi.metropolia.movesense.navigation.NavigationRoutes
@@ -45,14 +43,12 @@ fun HistoryView(navController: NavController, settingsViewModel: HistoryViewMode
                                     style = MaterialTheme.typography.titleMedium
                                 )
                             }
-
                             items(it) { item ->
                                 Card(
                                     onClick = {
-                                        val json = Gson().toJson(item)
                                         navController.navigate(
                                             NavigationRoutes.HISTORY_DETAILS.replace(
-                                                "{measurementData}", json
+                                                "{measurementId}", item.id.toString()
                                             )
                                         )
                                     },
