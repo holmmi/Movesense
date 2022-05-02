@@ -4,13 +4,12 @@ import android.app.Application
 import androidx.lifecycle.*
 import fi.metropolia.movesense.model.api.*
 import fi.metropolia.movesense.repository.UserRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
-    private val userRepository: UserRepository = UserRepository(application.applicationContext)
+    private val userRepository = UserRepository(application.applicationContext)
 
-    val userToken: LiveData<String?> = userRepository.getUserToken.asLiveData()
+    val userToken = userRepository.userToken.asLiveData()
 
     private var _loginResponse = MutableLiveData<LoginResponse>()
     val loginResponse: LiveData<LoginResponse>
@@ -29,14 +28,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         get() = _detailsResponse
 
     fun login(username: String, password: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             userRepository.login(
                 LoginRequest(
                     username,
                     password
                 )
             )
-            getDetails()
         }
     }
 
@@ -47,8 +45,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         passwordConfirmation: String,
         organizationId: Int
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _registerResponse.postValue(
+        viewModelScope.launch {
+            _registerResponse.value =
                 userRepository.register(
                     RegisterRequest(
                         name,
@@ -58,19 +56,26 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                         organizationId
                     )
                 )
-            )
         }
     }
 
-    fun getDetails() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _detailsResponse.postValue(userRepository.getDetails())
+    fun getUserDetails(token: String) {
+        if (token.isNotEmpty()) {
+            viewModelScope.launch {
+                _detailsResponse.value = userRepository.getDetails(token)
+            }
         }
     }
 
     fun getOrganizations() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _organizationResponse.postValue(userRepository.getOrganizations() as List<OrganizationResponse>)
+        viewModelScope.launch {
+            _organizationResponse.value = userRepository.getOrganizations()
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            userRepository.logout()
         }
     }
 }

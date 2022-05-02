@@ -45,6 +45,7 @@
     </string-array>
     <!-- Account -->
     <string name="login">Login</string>
+    <string name="logout">Logout</string>
     <string name="register">Register</string>
     <string name="username">Username</string>
     <string name="password">Password</string>

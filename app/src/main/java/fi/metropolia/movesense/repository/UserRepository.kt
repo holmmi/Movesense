@@ -7,46 +7,77 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import fi.metropolia.movesense.api.UserApi
 import fi.metropolia.movesense.model.api.LoginRequest
 import fi.metropolia.movesense.model.api.RegisterRequest
 import fi.metropolia.movesense.model.api.RegisterResponse
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 import retrofit2.await
 import retrofit2.awaitResponse
-import java.lang.Exception
+import kotlin.coroutines.EmptyCoroutineContext
 
-class UserRepository(val context: Context) {
+class UserRepository(private val context: Context) {
     private val userService = UserApi.service
-    val getUserToken: Flow<String?> = context.dataStore.data
+
+    val userToken: Flow<String?> = context.dataStore.data
         .map { preferences ->
             // No type safety.
-            preferences[TOKEN_KEY] ?: ""
+            preferences[TOKEN_KEY]
         }
 
-    suspend fun saveUserToken(token: String?) = token?.let {
-        context.dataStore.edit { preferences ->
-            preferences[TOKEN_KEY] = token
+    private val firebaseAuth = Firebase.auth
+
+    private fun saveUserToken(token: String?) {
+        token?.let {
+            CoroutineScope(EmptyCoroutineContext).launch {
+                context.dataStore.edit { preferences ->
+                    preferences[TOKEN_KEY] = it
+                }
+            }
         }
     }
 
     suspend fun login(loginRequest: LoginRequest) =
         withContext(Dispatchers.IO) {
             try {
-                saveUserToken(
-                    userService.loginUser(loginRequest)?.await()?.token
-                )
+                val token = userService.loginUser(loginRequest)?.await()?.token
+                token?.let {
+                    firebaseAuth.signInWithCustomToken(it)
+                        .addOnCompleteListener { signInTask ->
+                            if (signInTask.isSuccessful) {
+                                signInTask.result.user?.getIdToken(false)
+                                    ?.addOnCompleteListener { tokenTask ->
+                                        if (tokenTask.isSuccessful) {
+                                            saveUserToken(tokenTask.result.token)
+                                        }
+                                    }
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.e(TAG, "There was an error logging in a user", exception)
+                        }
+                }
             } catch (e: Exception) {
-                Log.e(TAG, "login error: ${e.localizedMessage}")
+                Log.e(TAG, "There was an error logging in a user", e)
                 null
             }
         }
+
+    suspend fun logout() {
+        withContext(Dispatchers.IO) {
+            context.dataStore.edit { preferences ->
+                preferences.clear()
+            }
+        }
+    }
 
     suspend fun register(registerRequest: RegisterRequest) =
         withContext(Dispatchers.IO) {
@@ -64,10 +95,10 @@ class UserRepository(val context: Context) {
             }
         }
 
-    suspend fun getDetails() = withContext(Dispatchers.IO) {
+    suspend fun getDetails(token: String) = withContext(Dispatchers.IO) {
         try {
-            val token: String? = getUserToken.first()
-            userService.userDetails(token).await()
+            val authorizationHeader = "Bearer $token"
+            userService.getUserDetails(authorizationHeader).await()
         } catch (e: Exception) {
             Log.e(TAG, "getDetails error: ${e.localizedMessage}")
             null

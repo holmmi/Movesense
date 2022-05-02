@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AppRegistration
 import androidx.compose.material.icons.outlined.Login
+import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,13 +22,13 @@ import androidx.navigation.NavController
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.navigation.NavigationRoutes
 
-
 @ExperimentalMaterial3Api
 @Composable
 fun SettingsView(navController: NavController, settingsViewModel: SettingsViewModel = viewModel()) {
     var showLoginDialog by rememberSaveable { mutableStateOf(false) }
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+
     val userToken by settingsViewModel.userToken.observeAsState()
     val userDetails by settingsViewModel.detailsResponse.observeAsState()
     val organizations by settingsViewModel.organizationResponse.observeAsState()
@@ -40,10 +41,11 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
         },
         content = {
             Column(
-                modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (showLoginDialog && userToken.isNullOrBlank()) {
+                if (showLoginDialog && userToken == null) {
                     Dialog(
                         onDismissRequest = { showLoginDialog = false },
                         content = {
@@ -92,23 +94,32 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
                         }
                     )
                 }
-                if (!userToken.isNullOrBlank() && userDetails != null)
-                    Card() {
+
+                if (!userToken.isNullOrEmpty() && userDetails != null) {
+                    Card {
                         Text(text = userDetails!!.name!!)
                         Text(text = userDetails!!.username!!)
                         Text(text = organizations?.get(userDetails!!.organization_id!!.minus(1))!!.name!!)
                     }
+                }
+
                 OutlinedButton(
-                    onClick = { showLoginDialog = true },
+                    onClick = {
+                        if (userToken != null) {
+                            settingsViewModel.logout()
+                        } else {
+                            showLoginDialog = true
+                        }
+                    },
                     modifier = Modifier
                         .padding(8.dp)
                         .width(150.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Login,
-                        contentDescription = stringResource(id = R.string.login)
+                        imageVector = if (userToken != null) Icons.Outlined.Logout else Icons.Outlined.Login,
+                        contentDescription = stringResource(id = if (userToken != null) R.string.logout else R.string.login)
                     )
-                    Text(text = stringResource(id = R.string.login))
+                    Text(text = stringResource(id = if (userToken != null) R.string.logout else R.string.login))
                 }
                 OutlinedButton(
                     onClick = { navController.navigate(NavigationRoutes.REGISTER) },
@@ -137,8 +148,12 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
             }
         }
     )
+
     LaunchedEffect(Unit) {
-        settingsViewModel.getDetails()
         settingsViewModel.getOrganizations()
+    }
+
+    LaunchedEffect(userToken) {
+        userToken?.let { settingsViewModel.getUserDetails(it) }
     }
 }
