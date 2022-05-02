@@ -150,6 +150,7 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                     }
                     viewModelScope.launch(Dispatchers.Default) {
                         calculateRPM(dataResponse.body.arrayGyro)
+                        calculateRotation()
                         setGraphData(selectedData)
                         calculateAverage(selectedData)
                     }

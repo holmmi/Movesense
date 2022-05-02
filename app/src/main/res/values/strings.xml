@@ -20,8 +20,8 @@
     <string name="combine_axis">Combine axis</string>
     <string name="clear_graph">Clear graph</string>
     <string name="loading">Waiting for data… This can take up to 30 seconds.</string>
-    <string name="pitch">Pitch: %1$f.2°</string>
-    <string name="roll">Roll: %1$f°</string>
+    <string name="pitch">Pitch: %1$.2f°</string>
+    <string name="roll">Roll: %1$.2f°</string>
     <!-- History -->
     <string name="history">History</string>
     <string name="no_description">No description</string>

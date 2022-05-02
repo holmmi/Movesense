@@ -38,6 +38,10 @@ fun MeasureView(
     val entriesY by measureViewModel.entriesY.observeAsState()
     val entriesZ by measureViewModel.entriesZ.observeAsState()
 
+    val pitch by measureViewModel.pitch.observeAsState()
+    val roll by measureViewModel.roll.observeAsState()
+    val rpm by measureViewModel.rpm.observeAsState()
+
     Scaffold(
         topBar = {
             SmallTopAppBar(
@@ -92,13 +96,18 @@ fun MeasureView(
                     if (measureViewModel.combineAxis.value == true) {
                         measureViewModel.toggleCombineAxis()
                     }
-                   // TODO: merge from #46 and call MovesenseGauge()
+                    MovesenseGauge(
+                        pitch ?: 0.0,
+                        roll ?: 0.0,
+                        rpm ?: 0,
+                        onCalculateRotation = { measureViewModel.calculateRotation() },
+                    )
                 } else {
                     MovesenseGraph(
                         entriesX,
                         entriesY,
                         entriesZ,
-                        measureViewModel.dataAvg.value,
+                        selectedData,
                         onSelectMeasureType = { measureViewModel.changeMeasureType(it) },
                         onCombineAxis = { measureViewModel.toggleCombineAxis() },
                         onClearData = { measureViewModel.toggleClearData() },

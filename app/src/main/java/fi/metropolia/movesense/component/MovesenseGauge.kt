@@ -25,13 +25,8 @@ fun MovesenseGauge(
     pitch: Double,
     roll: Double,
     rpm: Int,
-    combineAxis: Boolean,
     onCalculateRotation: () -> Unit,
-    onCombineAxis: () -> Unit
 ) {
-    if (combineAxis) {
-        onCombineAxis()
-    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
