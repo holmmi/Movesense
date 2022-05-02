@@ -141,7 +141,7 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
                         }
 
                         MeasureType.Magnetic -> {
-                            dataResponse.body.arrayGyro
+                            dataResponse.body.arrayMagn
                         }
 
                         null -> {
