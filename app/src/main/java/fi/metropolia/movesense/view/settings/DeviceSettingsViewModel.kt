@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 class DeviceSettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val movesenseConnector = MovesenseConnector(application.applicationContext)
     private var deviceSerial = ""
+    private val gson = Gson()
 
     private val scannerCallback = object : MovesenseCallback {
         override fun onDeviceFound(movesenseDevices: List<MovesenseDevice>) {
@@ -78,7 +79,7 @@ class DeviceSettingsViewModel(application: Application) : AndroidViewModel(appli
         movesenseConnector.getAdvertisementSettings(serial, object : MdsResponseListener {
             override fun onSuccess(data: String?, header: MdsHeader?) {
                 val settingsResponse: AdvSettingsResponse =
-                    Gson().fromJson(data, AdvSettingsResponse::class.java)
+                    gson.fromJson(data, AdvSettingsResponse::class.java)
                 if (settingsResponse.content.timeout != null) {
                     _advSettings.postValue(settingsResponse)
                 }
@@ -110,6 +111,6 @@ class DeviceSettingsViewModel(application: Application) : AndroidViewModel(appli
 
     companion object {
         private val TAG = SettingsViewModel::class.simpleName
-        private const val SCAN_TIMEOUT = 20000L
+        private const val SCAN_TIMEOUT = 10000L
     }
 }
