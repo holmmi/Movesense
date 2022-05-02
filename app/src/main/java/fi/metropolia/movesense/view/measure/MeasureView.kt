@@ -30,6 +30,9 @@ fun MeasureView(
     var gauge by rememberSaveable { mutableStateOf(false) }
     val isConnected by measureViewModel.isConnected.observeAsState()
     val selectedData by measureViewModel.dataAvg.observeAsState()
+    val entriesX by measureViewModel.entriesX.observeAsState()
+    val entriesY by measureViewModel.entriesY.observeAsState()
+    val entriesZ by measureViewModel.entriesZ.observeAsState()
 
     Scaffold(
         topBar = {
@@ -75,29 +78,39 @@ fun MeasureView(
                 if (gauge) {
                     MovesenseGauge(measureViewModel = measureViewModel)
                 } else {
-                    MovesenseGraph(measureViewModel = measureViewModel)
+                    MovesenseGraph(
+                        entriesX,
+                        entriesY,
+                        entriesZ,
+                        measureViewModel.dataAvg.value,
+                        onSelectMeasureType = { measureViewModel.changeMeasureType(it) },
+                        onCombineAxis = { measureViewModel.toggleCombineAxis() },
+                        onClearData = { measureViewModel.toggleClearData() },
+                        isLiveGraph = true
+                    )
                 }
-
             } else {
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    Row(modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                    ) {
                         ShowAnimation(assetName = "animations/48244-dashboard-data-visualization.json")
                     }
-                        Text(
-                            stringResource(id = R.string.loading),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
-                        )
-                    }
+                    Text(
+                        stringResource(id = R.string.loading),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                    )
                 }
+            }
         }
     )
     if (address != null) {
