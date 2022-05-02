@@ -17,6 +17,8 @@ import fi.metropolia.movesense.view.history.HistoryView
 import fi.metropolia.movesense.view.logging.LoggingDeviceView
 import fi.metropolia.movesense.view.logging.LoggingStartView
 import fi.metropolia.movesense.view.measure.MeasureView
+import fi.metropolia.movesense.view.settings.DeviceSettings
+import fi.metropolia.movesense.view.settings.RegisterView
 import fi.metropolia.movesense.view.settings.SettingsView
 import fi.metropolia.movesense.view.start.StartView
 
@@ -69,6 +71,12 @@ fun Navigation() {
                             navArgument("macAddress") { type = NavType.StringType }
                         )
                     ) { LoggingDeviceView(navController, it.arguments?.getString("macAddress")) }
+                    composable(
+                        route = NavigationRoutes.REGISTER
+                    ) { RegisterView(navController = navController) }
+                    composable(
+                        route = NavigationRoutes.DEVICE_SETTINGS
+                    ) { DeviceSettings(navController = navController) }
                 }
             }
         },
@@ -84,4 +92,6 @@ object NavigationRoutes {
     const val MEASURE = "start/measure/{address}"
     const val SETTINGS = "settings"
     const val START = "start"
+    const val REGISTER = "settings/register"
+    const val DEVICE_SETTINGS = "settings/device"
 }

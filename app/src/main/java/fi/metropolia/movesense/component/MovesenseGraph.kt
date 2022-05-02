@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.DirectionsRun
-import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.FlipCameraAndroid
 import androidx.compose.material.icons.outlined.Polymer
 import androidx.compose.material3.*
@@ -308,9 +307,6 @@ fun SelectedDataCard(measureType: MeasureType, selectedData: MovesenseDataRespon
                         MeasureType.Acceleration -> Icons.Outlined.DirectionsRun
                         MeasureType.Gyro -> Icons.Outlined.FlipCameraAndroid
                         MeasureType.Magnetic -> Icons.Outlined.Polymer
-                        else -> {
-                            Icons.Outlined.ErrorOutline
-                        }
                     }, contentDescription = null
                 )
             }

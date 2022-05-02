@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Movesense</string>
     <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
     <string name="cancel">Cancel</string>
     <!-- Start -->
     <string name="start">Start</string>
@@ -45,4 +46,23 @@
         <item>Movement</item>
         <item>Magnetic field</item>
     </string-array>
+    <!-- Account -->
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="register">Register</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="organization">Organization</string>
+    <string name="name">Name</string>
+    <string name="password_conf">Password confirmation</string>
+    <string name="name_not_found">Name not found</string>
+    <string name="register_failed">Register failed with messages: </string>
+    <string name="register_successful">Register successful</string>
+    <string name="welcome">Welcome!</string>
+    <!-- Device settings -->
+    <string name="advertising_settings">Bluetooth Advertising settings</string>
+    <string name="interval">Interval %1$o ms</string>
+    <string name="interval_explanation">Interval means how often the device notifies of it\'s presence in milliseconds</string>
+    <string name="timeout">Timeout %1$o</string>
+    <string name="timeout_explanation">Timeout means how long it takes before the device turns of notifications while the device is active.</string>
 </resources>
