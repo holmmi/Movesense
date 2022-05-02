@@ -14,7 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -64,13 +64,15 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
                                         modifier = Modifier.padding(8.dp),
                                         value = username,
                                         onValueChange = { username = it },
-                                        placeholder = { Text(text = stringResource(id = R.string.username)) }
+                                        placeholder = { Text(text = stringResource(id = R.string.username)) },
+                                        singleLine = true
                                     )
                                     OutlinedTextField(
                                         modifier = Modifier.padding(8.dp),
                                         value = password,
                                         onValueChange = { password = it },
-                                        visualTransformation = VisualTransformation.None,
+                                        visualTransformation = PasswordVisualTransformation(),
+                                        singleLine = true,
                                         placeholder = { Text(text = stringResource(id = R.string.password)) }
                                     )
 

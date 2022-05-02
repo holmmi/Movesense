@@ -109,8 +109,8 @@ class UserRepository(private val context: Context) {
         withContext(Dispatchers.IO) { userService.getOrganizations().await() }
 
     companion object {
-        val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "tokenStore")
-        val TOKEN_KEY = stringPreferencesKey("user_token")
-        val TAG = UserRepository::class.simpleName
+        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "tokenStore")
+        private val TOKEN_KEY = stringPreferencesKey("user_token")
+        private val TAG = UserRepository::class.simpleName
     }
 }
