@@ -14,6 +14,8 @@ import fi.metropolia.movesense.model.MovesenseDataResponse
 import fi.metropolia.movesense.type.MeasureType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.PI
+import kotlin.math.atan2
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -46,6 +48,15 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
     val rpm: LiveData<Int>
         get() = _rpm
 
+    private val _pitch = MutableLiveData(0.0)
+    val pitch: LiveData<Double>
+        get() = _pitch
+
+    private val _roll = MutableLiveData(0.0)
+    val roll: LiveData<Double>
+        get() = _roll
+
+    val gson = Gson()
 
     // Graph data entries, x is also used for combined data
     private val _entriesX = MutableLiveData<List<Entry>>()
@@ -97,11 +108,25 @@ class MeasureViewModel(application: Application) : AndroidViewModel(application)
         _entriesZ.postValue(listOf())
     }
 
+    fun calculateRotation() {
+        if (!entriesX.value.isNullOrEmpty() &&
+            !entriesY.value.isNullOrEmpty() &&
+            !entriesZ.value.isNullOrEmpty()
+        ) {
+            val x = entriesX.value?.last()?.y ?: 0.0F
+            val y = entriesY.value?.last()?.y ?: 0.0F
+            val z = entriesZ.value?.last()?.y ?: 0.0F
+
+            _pitch.postValue(atan2(-x, sqrt(y * y + z * z)) * 180 / PI)
+            _roll.postValue(atan2(y, z) * 180 / PI)
+        }
+    }
+
     private fun subscribe(serial: String) =
         movesenseConnector.subscribe(serial, object : MdsNotificationListener {
             override fun onNotification(data: String?) {
                 val dataResponse: MovesenseDataResponse =
-                    Gson().fromJson(data, MovesenseDataResponse::class.java)
+                    gson.fromJson(data, MovesenseDataResponse::class.java)
                 if (!dataResponse.body.arrayAcc.isNullOrEmpty() &&
                     !dataResponse.body.arrayGyro.isNullOrEmpty() &&
                     !dataResponse.body.arrayMagn.isNullOrEmpty()

@@ -8,12 +8,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,37 +18,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.ekn.gruzer.gaugelibrary.MultiGauge
 import com.ekn.gruzer.gaugelibrary.Range
-import fi.metropolia.movesense.type.MeasureType
-import fi.metropolia.movesense.view.measure.MeasureViewModel
-import kotlin.math.PI
-import kotlin.math.atan2
-import kotlin.math.sqrt
 import fi.metropolia.movesense.R
 
 @Composable
-fun MovesenseGauge(measureViewModel: MeasureViewModel) {
-    var pitch by rememberSaveable { mutableStateOf(0.0) }
-    var roll by rememberSaveable { mutableStateOf(0.0) }
-    val rpm by measureViewModel.rpm.observeAsState()
-
-    val entriesX by measureViewModel.entriesX.observeAsState()
-    val entriesY by measureViewModel.entriesY.observeAsState()
-    val entriesZ by measureViewModel.entriesZ.observeAsState()
-    measureViewModel.changeMeasureType(MeasureType.Acceleration)
-    if (measureViewModel.combineAxis.value == true) measureViewModel.toggleCombineAxis()
-
-    fun calculateRotation() {
-        if (!entriesX.isNullOrEmpty() &&
-            !entriesY.isNullOrEmpty() &&
-            !entriesZ.isNullOrEmpty()
-        ) {
-            val x = entriesX?.last()?.y ?: 0.0F
-            val y = entriesY?.last()?.y ?: 0.0F
-            val z = entriesZ?.last()?.y ?: 0.0F
-
-            pitch = atan2(-x, sqrt(y * y + z * z)) * 180 / PI
-            roll = atan2(y, z) * 180 / PI
-        }
+fun MovesenseGauge(
+    pitch: Double,
+    roll: Double,
+    rpm: Int,
+    combineAxis: Boolean,
+    onCalculateRotation: () -> Unit,
+    onCombineAxis: () -> Unit
+) {
+    if (combineAxis) {
+        onCombineAxis()
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -85,13 +61,13 @@ fun MovesenseGauge(measureViewModel: MeasureViewModel) {
                     gauge.addRange(range)
                     gauge.addSecondRange(range2)
 
-                    calculateRotation()
+                    onCalculateRotation()
                     gauge.value = pitch
                     gauge.secondValue = roll
                     gauge
                 },
                 update = { gauge ->
-                    calculateRotation()
+                    onCalculateRotation()
                     gauge.value = pitch
                     gauge.secondValue = roll
                     gauge.invalidate()
@@ -128,7 +104,5 @@ fun MovesenseGauge(measureViewModel: MeasureViewModel) {
                 textAlign = TextAlign.Center,
             )
         }
-
-
     }
 }

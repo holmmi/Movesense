@@ -1,6 +1,5 @@
 package fi.metropolia.movesense.view.measure
 
-import android.widget.ToggleButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -67,10 +66,11 @@ fun MeasureView(
                         checked = gauge,
                         onCheckedChange = { gauge = !gauge },
                     ) {
-                        Box(modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(if (gauge) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.background),
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(if (gauge) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.background),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
@@ -86,7 +86,10 @@ fun MeasureView(
         content = {
             if (isConnected == true && selectedData != null) {
                 if (gauge) {
-                    MovesenseGauge(measureViewModel = measureViewModel)
+                    if (measureViewModel.combineAxis.value == true) {
+                        measureViewModel.toggleCombineAxis()
+                    }
+                   // TODO: merge from #46 and call MovesenseGauge()
                 } else {
                     MovesenseGraph(measureViewModel = measureViewModel)
                 }
@@ -115,12 +118,14 @@ fun MeasureView(
             }
         }
     )
-    if (address != null) {
-        LaunchedEffect(Unit) {
+    LaunchedEffect(Unit) {
+        if (address != null) {
             measureViewModel.connect(address)
         }
-        DisposableEffect(Unit) {
-            onDispose {
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            if (address != null) {
                 measureViewModel.disconnect(address)
             }
         }

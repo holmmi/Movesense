@@ -89,7 +89,6 @@ fun LoggingDeviceView(
                             item {
                                 Divider()
                             }
-
                             itemsIndexed(measurementTypes) { index, measurementType ->
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -193,12 +192,15 @@ fun LoggingDeviceView(
             }
         }
     )
-    if (macAddress != null) {
-        LaunchedEffect(Unit) {
+
+    LaunchedEffect(Unit) {
+        if (macAddress != null) {
             loggingDeviceViewModel.connect(macAddress)
         }
-        DisposableEffect(Unit) {
-            onDispose {
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            if (macAddress != null) {
                 loggingDeviceViewModel.disconnect(macAddress)
             }
         }
