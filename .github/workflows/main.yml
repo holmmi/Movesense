@@ -51,7 +51,7 @@ jobs:
         distribution: 'temurin'
     - name: Create configuration
       run: echo '${{ secrets.LOCAL_PROPERTIES }}' > local.properties
-    - name: Build an APK
+    - name: Build APK
       run: bash ./gradlew assembleDebug
     - name: Upload APK
       uses: actions/upload-artifact@v3
@@ -68,6 +68,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: apk
+          path: apk
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
@@ -85,3 +86,4 @@ jobs:
           asset_path: apk/app-debug.apk
           asset_name: Movesense.apk
           asset_content_type: application/zip
+          overwrite: true
