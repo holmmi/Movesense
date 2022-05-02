@@ -52,7 +52,7 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
                             Box(
                                 modifier = Modifier
                                     .background(MaterialTheme.colorScheme.background)
-                                    .fillMaxHeight(0.7f)
+                                    .fillMaxHeight(0.5f)
                                     .fillMaxWidth(0.9f)
                             ) {
                                 Column(
@@ -78,7 +78,10 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
 
                                     Spacer(modifier = Modifier.weight(1f, false))
 
-                                    Row(horizontalArrangement = Arrangement.End) {
+                                    Row(modifier = Modifier.align(Alignment.End)) {
+                                        TextButton(onClick = { showLoginDialog = false }) {
+                                            Text(text = stringResource(id = R.string.cancel))
+                                        }
                                         TextButton(onClick = {
                                             settingsViewModel.login(
                                                 username,
@@ -86,9 +89,6 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
                                             )
                                         }) {
                                             Text(text = stringResource(id = R.string.login))
-                                        }
-                                        TextButton(onClick = { showLoginDialog = false }) {
-                                            Text(text = stringResource(id = R.string.cancel))
                                         }
                                     }
                                 }
@@ -98,10 +98,29 @@ fun SettingsView(navController: NavController, settingsViewModel: SettingsViewMo
                 }
 
                 if (!userToken.isNullOrEmpty() && userDetails != null) {
-                    Card {
-                        Text(text = userDetails!!.name!!)
-                        Text(text = userDetails!!.username!!)
-                        Text(text = organizations?.get(userDetails!!.organization_id!!.minus(1))!!.name!!)
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(0.5f)
+                            .height(150.dp),
+                        ) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.SpaceEvenly,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(text = stringResource(id = R.string.welcome))
+                            Text(
+                                text = userDetails!!.name ?: "",
+                                )
+                            Text(
+                                text = userDetails!!.username ?: "",
+                            )
+                            Text(
+                                text = organizations?.get(userDetails!!.organization_id!!.minus(1))!!.name
+                                    ?: "",
+                            )
+                        }
+
                     }
                 }
 

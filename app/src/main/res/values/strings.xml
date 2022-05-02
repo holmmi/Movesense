@@ -58,6 +58,7 @@
     <string name="name_not_found">Name not found</string>
     <string name="register_failed">Register failed with messages: </string>
     <string name="register_successful">Register successful</string>
+    <string name="welcome">Welcome!</string>
     <!-- Device settings -->
     <string name="advertising_settings">Bluetooth Advertising settings</string>
     <string name="interval">Interval %1$o ms</string>
