@@ -16,6 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.component.ShowAnimation
+import fi.metropolia.movesense.navigation.NavigationRoutes
 import fi.metropolia.movesense.util.DateUtil
 
 @ExperimentalMaterial3Api
@@ -42,10 +43,15 @@ fun HistoryView(navController: NavController, settingsViewModel: HistoryViewMode
                                     style = MaterialTheme.typography.titleMedium
                                 )
                             }
-
                             items(it) { item ->
                                 Card(
-                                    onClick = { /* TODO: Implement navigation to history details */ },
+                                    onClick = {
+                                        navController.navigate(
+                                            NavigationRoutes.HISTORY_DETAILS.replace(
+                                                "{measurementId}", item.id.toString()
+                                            )
+                                        )
+                                    },
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(16.dp)
@@ -57,7 +63,8 @@ fun HistoryView(navController: NavController, settingsViewModel: HistoryViewMode
                                             .padding(14.dp)
                                     ) {
                                         Text(
-                                            text = item.description ?: stringResource(id = R.string.no_description),
+                                            text = item.description
+                                                ?: stringResource(id = R.string.no_description),
                                             style = MaterialTheme.typography.titleMedium,
                                             modifier = Modifier.padding(bottom = 4.dp)
                                         )
