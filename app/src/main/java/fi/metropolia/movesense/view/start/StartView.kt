@@ -29,7 +29,7 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
     val isSearching = startViewModel.isSearching.observeAsState()
     val permissionsLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            it.values.all { value -> value }
+            permissionsGiven = it.values.all { value -> value }
         }
 
     Scaffold(
@@ -59,22 +59,15 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
                         isSearching = isSearching.value ?: false,
                         onStartScan = { startViewModel.startScan() }
                     )
-                } else {
-                    permissionsGiven =
-                        PermissionUtil.checkBluetoothPermissions(
-                            context,
-                            onCheckPermissions = { permissionsLauncher.launch(it) }
-                        )
                 }
             }
         }
     )
 
     LaunchedEffect(Unit) {
-        permissionsGiven =
-            PermissionUtil.checkBluetoothPermissions(
-                context,
-                onCheckPermissions = { permissionsLauncher.launch(it) }
-            )
+        permissionsGiven = PermissionUtil.checkBluetoothPermissions(
+            context,
+            onCheckPermissions = { permissionsLauncher.launch(it) }
+        )
     }
 }
