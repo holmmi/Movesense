@@ -12,7 +12,6 @@ class PermissionUtil {
             context: Context,
             onCheckPermissions: (Array<String>) -> Unit
         ): Boolean {
-            var btChecked = false
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 if (ContextCompat.checkSelfPermission(
                         context,
@@ -29,32 +28,29 @@ class PermissionUtil {
                             Manifest.permission.BLUETOOTH_CONNECT
                         )
                     )
-                } else {
-                    btChecked = true
+                    return false
                 }
+                return true
             } else {
-                btChecked = true
-            }
-            var locChecked = false
-            if (ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                onCheckPermissions(
-                    arrayOf(
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(
+                        context,
                         Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    onCheckPermissions(
+                        arrayOf(
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        )
                     )
-                )
-            } else {
-                locChecked = true
+                    return false
+                }
+                return true
             }
-            return btChecked && locChecked
         }
     }
 }
