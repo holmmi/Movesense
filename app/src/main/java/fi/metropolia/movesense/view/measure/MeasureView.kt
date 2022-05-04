@@ -111,7 +111,7 @@ fun MeasureView(
                         onSelectMeasureType = { measureViewModel.changeMeasureType(it) },
                         onCombineAxis = { measureViewModel.toggleCombineAxis() },
                         onClearData = { measureViewModel.toggleClearData() },
-                        isLiveGraph = true
+                        isLiveGraph = true,
                     )
                 }
             } else {

@@ -21,7 +21,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -70,6 +69,7 @@ fun MovesenseGraph(
             zSet.color = Color.Green.hashCode()
             zSet.lineWidth = 2f
 
+
             val data = LineData(xSet, ySet, zSet)
             data.setValueTextColor(R.color.md_theme_light_background)
             data.setValueTextSize(9f)
@@ -107,7 +107,7 @@ fun MovesenseGraph(
 
     val selectedBtnColor = ButtonDefaults.buttonColors(
         containerColor = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.surface
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     )
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -217,10 +217,6 @@ fun MovesenseGraph(
                     val chart = LineChart(context)
                     chart.legend.isEnabled = true
 
-                    val desc = Description()
-
-                    desc.text = context.getString(R.string.live_graph)
-                    chart.description = desc
                     chart.data = setData()
                     chart
                 },
@@ -325,3 +321,4 @@ fun SelectedDataCard(measureType: MeasureType, selectedData: MovesenseDataRespon
         }
     }
 }
+

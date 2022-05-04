@@ -47,6 +47,10 @@ class HistoryDetailsViewModel(application: Application) : AndroidViewModel(appli
     val entriesZ: LiveData<List<Entry>>
         get() = _entriesZ
 
+    private val _dataIndex = MutableLiveData(0)
+    val dataIndex: LiveData<Int>
+        get() = _dataIndex
+
     fun changeMeasureType(measureType: MeasureType) {
         _measureType.postValue(measureType)
         getEntries(combineAxis)
@@ -95,7 +99,7 @@ class HistoryDetailsViewModel(application: Application) : AndroidViewModel(appli
             _entriesZ.postValue(listOf())
         } else {
             _entriesX.postValue(data?.mapIndexed { index, value ->
-                Entry(index.toFloat(), value.x.toFloat())
+                Entry(accelerationData?.last()?.timestamp?.toFloat() ?: index.toFloat(), value.x.toFloat())
             })
             _entriesY.postValue(data?.mapIndexed { index, value ->
                 Entry(index.toFloat(), value.y.toFloat())
