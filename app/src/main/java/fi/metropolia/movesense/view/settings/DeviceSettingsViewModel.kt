@@ -107,7 +107,10 @@ class DeviceSettingsViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    fun stopScan() = movesenseScanner.stopScan()
+    fun stopScan() {
+        movesenseScanner.stopScan()
+        _isSearching.postValue(false)
+    }
 
     companion object {
         private val TAG = SettingsViewModel::class.simpleName

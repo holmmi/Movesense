@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -19,7 +20,7 @@ import fi.metropolia.movesense.navigation.NavigationRoutes
 @Composable
 fun StartView(navController: NavController, startViewModel: StartViewModel = viewModel()) {
     val movesenseDevices = startViewModel.movesenseDevices.observeAsState()
-    val isSearching = startViewModel.isSearching.observeAsState()
+    val isSearching by startViewModel.isSearching.observeAsState(false)
 
     Scaffold(
         topBar = {
@@ -43,8 +44,9 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
                                 )
                             }
                         },
-                        isSearching = isSearching.value ?: false,
-                        onStartScan = { startViewModel.startScan() }
+                        isSearching = isSearching,
+                        onStartScan = { startViewModel.startScan() },
+                        onLeaveScanner = { startViewModel.stopScan() }
                     )
             }
         }

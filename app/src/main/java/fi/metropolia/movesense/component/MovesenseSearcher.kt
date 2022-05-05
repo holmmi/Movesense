@@ -35,7 +35,8 @@ fun MovesenseSearcher(
     movesenseDevices: List<MovesenseDevice>?,
     onConnect: (Int) -> Unit,
     isSearching: Boolean,
-    onStartScan: () -> Unit
+    onStartScan: () -> Unit,
+    onLeaveScanner: () -> Unit
 ) {
     var searched by rememberSaveable { mutableStateOf(false) }
     var permissionsGiven by rememberSaveable { mutableStateOf(false) }
@@ -70,7 +71,8 @@ fun MovesenseSearcher(
                             context,
                             onCheckPermissions = { permissionsLauncher.launch(it) }
                         )
-                    }
+                    },
+                    modifier = Modifier.padding(top = 10.dp)
                 ) {
                     Text(text = stringResource(id = R.string.give_permissions))
                 }
@@ -88,7 +90,11 @@ fun MovesenseSearcher(
                         verticalArrangement = Arrangement.Center,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        Row(modifier = Modifier.fillMaxSize()) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
                             Text(
                                 text = stringResource(id = R.string.search_devices),
                                 textAlign = TextAlign.Center,
@@ -235,5 +241,13 @@ fun MovesenseSearcher(
             context,
             onCheckPermissions = { permissionsLauncher.launch(it) }
         )
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            if (isSearching) {
+                onLeaveScanner()
+            }
+        }
     }
 }

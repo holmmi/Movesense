@@ -18,17 +18,19 @@ class MovesenseScanner(val context: Context, private val scannerCallback: Movese
     private val leScanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
-            result?.let {
-                if (result.device.name.startsWith(MOVESENSE_PREFIX) &&
-                    leScanResults.all { result -> result.macAddress != it.device.address }) {
-                    leScanResults.add(
-                        MovesenseDevice(
-                            it.device.name ?: "-",
-                            it.device.address,
-                            it.rssi
+            result?.let { scanResult ->
+                scanResult.device?.name?.let { deviceName ->
+                    if (scanResult.device.name.startsWith(MOVESENSE_PREFIX) &&
+                        leScanResults.all { leResult -> leResult.macAddress != scanResult.device.address }) {
+                        leScanResults.add(
+                            MovesenseDevice(
+                                scanResult.device.name ?: "-",
+                                scanResult.device.address,
+                                scanResult.rssi
+                            )
                         )
-                    )
-                    scannerCallback.onDeviceFound(leScanResults)
+                        scannerCallback.onDeviceFound(leScanResults)
+                    }
                 }
             }
         }

@@ -49,7 +49,8 @@ fun DeviceSettings(
                         deviceSettingsViewModel.connect(movesenseDevices.value!![it].macAddress)
                     },
                     isSearching = isSearching.value ?: false,
-                    onStartScan = { deviceSettingsViewModel.startScan() }
+                    onStartScan = { deviceSettingsViewModel.startScan() },
+                    onLeaveScanner = { deviceSettingsViewModel.stopScan() }
                 )
             } else {
                 val settings = advSettings.value?.content

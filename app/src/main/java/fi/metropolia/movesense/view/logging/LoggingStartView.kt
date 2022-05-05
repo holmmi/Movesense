@@ -49,7 +49,8 @@ fun LoggingStartView(
                         }
                     },
                     isSearching = isScanning!!,
-                    onStartScan = { loggingStartViewModel.startScan() }
+                    onStartScan = { loggingStartViewModel.startScan() },
+                    onLeaveScanner = { loggingStartViewModel.stopScan() }
                 )
             }
         }
