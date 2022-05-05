@@ -3,9 +3,7 @@ package fi.metropolia.movesense.bluetooth
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
-import android.bluetooth.le.ScanSettings
 import android.content.Context
 
 @SuppressLint("MissingPermission")
@@ -21,7 +19,8 @@ class MovesenseScanner(val context: Context, private val scannerCallback: Movese
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
             result?.let {
-                if (leScanResults.all { result -> result.macAddress != it.device.address }) {
+                if (result.device.name.startsWith(MOVESENSE_PREFIX) &&
+                    leScanResults.all { result -> result.macAddress != it.device.address }) {
                     leScanResults.add(
                         MovesenseDevice(
                             it.device.name ?: "-",
@@ -40,23 +39,16 @@ class MovesenseScanner(val context: Context, private val scannerCallback: Movese
             return false
         }
         leScanResults = mutableListOf()
-        val scanFilter = ScanFilter.Builder()
-            .setManufacturerData(SUUNTO_MANUFACTURER_ID, byteArrayOf())
-            .build()
-        val scanSettings = ScanSettings.Builder()
-            .build()
-        leScanner.startScan(listOf(scanFilter), scanSettings, leScanCallback)
+        leScanner.startScan(leScanCallback)
         return true
     }
 
-    fun stopScan() {
-        leScanner.stopScan(leScanCallback)
-    }
+    fun stopScan() = leScanner.stopScan(leScanCallback)
 
     private fun isBluetoothEnabled(): Boolean =
         bluetoothAdapter != null && bluetoothAdapter.isEnabled
 
     companion object {
-        private const val SUUNTO_MANUFACTURER_ID = 0x009F
+        private const val MOVESENSE_PREFIX = "Movesense"
     }
 }
