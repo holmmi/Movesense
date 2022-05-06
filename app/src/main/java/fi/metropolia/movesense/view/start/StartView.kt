@@ -1,16 +1,13 @@
 package fi.metropolia.movesense.view.start
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -18,19 +15,12 @@ import androidx.navigation.NavController
 import fi.metropolia.movesense.R
 import fi.metropolia.movesense.component.MovesenseSearcher
 import fi.metropolia.movesense.navigation.NavigationRoutes
-import fi.metropolia.movesense.util.PermissionUtil
 
 @ExperimentalMaterial3Api
 @Composable
 fun StartView(navController: NavController, startViewModel: StartViewModel = viewModel()) {
-    val context = LocalContext.current
     val movesenseDevices = startViewModel.movesenseDevices.observeAsState()
-    var permissionsGiven by rememberSaveable { mutableStateOf(false) }
-    val isSearching = startViewModel.isSearching.observeAsState()
-    val permissionsLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            permissionsGiven = it.values.all { value -> value }
-        }
+    val isSearching by startViewModel.isSearching.observeAsState(false)
 
     Scaffold(
         topBar = {
@@ -38,12 +28,10 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
                 title = { Text(text = stringResource(id = R.string.select_sensor)) }
             )
         },
-        floatingActionButtonPosition = FabPosition.Center,
         content = {
             Column(modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp)) {
-                if (permissionsGiven) {
                     MovesenseSearcher(
                         movesenseDevices = movesenseDevices.value,
                         onConnect = {
@@ -56,18 +44,11 @@ fun StartView(navController: NavController, startViewModel: StartViewModel = vie
                                 )
                             }
                         },
-                        isSearching = isSearching.value ?: false,
-                        onStartScan = { startViewModel.startScan() }
+                        isSearching = isSearching,
+                        onStartScan = { startViewModel.startScan() },
+                        onLeaveScanner = { startViewModel.stopScan() }
                     )
-                }
             }
         }
     )
-
-    LaunchedEffect(Unit) {
-        permissionsGiven = PermissionUtil.checkBluetoothPermissions(
-            context,
-            onCheckPermissions = { permissionsLauncher.launch(it) }
-        )
-    }
 }

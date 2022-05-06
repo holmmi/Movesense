@@ -42,6 +42,7 @@ class LoggingStartViewModel(application: Application) : AndroidViewModel(applica
 
     fun stopScan() {
         movesenseScanner.stopScan()
+        _isScanning.postValue(false)
     }
 
     companion object {

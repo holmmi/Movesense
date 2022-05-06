@@ -65,4 +65,7 @@
     <string name="interval_explanation">Interval means how often the device notifies of it\'s presence in milliseconds</string>
     <string name="timeout">Timeout %1$o</string>
     <string name="timeout_explanation">Timeout means how long it takes before the device turns of notifications while the device is active.</string>
+    <!-- MovesenseSearcher -->
+    <string name="permissions_not_given">Location permissions are required to perform a Bluetooth scan.</string>
+    <string name="give_permissions">Give permissions</string>
 </resources>
