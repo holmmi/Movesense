@@ -41,6 +41,7 @@
     <string name="delete_logs">Delete logs</string>
     <string name="connecting">Connecting…</string>
     <string name="choose_what_to_log">Choose measurement types and sample rate</string>
+    <string name="loading_log_data">Loading log data… please wait without closing this page.\nThis may take up to 15 minutes depending on how much data is stored in the Movesense device.</string>
     <string-array name="measurement_types">
         <item>Acceleration</item>
         <item>Movement</item>

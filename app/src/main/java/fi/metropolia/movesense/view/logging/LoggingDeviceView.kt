@@ -1,9 +1,11 @@
 package fi.metropolia.movesense.view.logging
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NavigateBefore
@@ -15,10 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.movesense.R
+import fi.metropolia.movesense.component.ShowAnimation
 
 @ExperimentalMaterial3Api
 @Composable
@@ -143,6 +148,37 @@ fun LoggingDeviceView(
                         }
                     }
                 )
+            }
+            if (!operationsAllowed && deviceName != null) {
+                Dialog(onDismissRequest = { }) {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .background(
+                                MaterialTheme.colorScheme.background,
+                                RoundedCornerShape(30.dp)
+                            )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                        ) {
+                            ShowAnimation(assetName = "animations/79836-graph-insights.json")
+                        }
+                        Text(
+                            stringResource(id = R.string.loading_log_data),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                        )
+                    }
+                }
             }
 
             Column(
